@@ -1,0 +1,64 @@
+<section class="s" data-act="7" data-title="Lộ trình luyện tập" data-time="15">
+  <div class="eyebrow"><b>Kết</b></div>
+  <h2>Luyện tập từ dễ đến khó</h2>
+  <div class="body col">
+    <table class="t">
+      <tr><th>Mức</th><th>Bài</th><th>Công cụ</th></tr>
+      <tr><td class="h">1 · Trực tiếp</td><td><a href="https://cses.fi/problemset/task/1647" target="_blank" rel="noopener">CSES 1647</a>, <a href="https://cses.fi/problemset/task/1649" target="_blank" rel="noopener">CSES 1649</a>, <a href="https://oj.vnoi.info/problem/nklineup" target="_blank" rel="noopener">VNOJ NKLINEUP</a></td><td>Sparse Table, Segment Tree</td></tr>
+      <tr><td class="h">2 · Họ hàng</td><td><a href="https://oj.vnoi.info/problem/mink" target="_blank" rel="noopener">VNOJ MINK</a>, <a href="https://cses.fi/problemset/task/1645" target="_blank" rel="noopener">CSES 1645</a>, <a href="https://oj.vnoi.info/problem/qmax2" target="_blank" rel="noopener">VNOJ QMAX2</a></td><td>Deque, ngăn xếp, lazy</td></tr>
+      <tr><td class="h">3 · Kết hợp</td><td><a href="https://codeforces.com/problemset/problem/689/D" target="_blank" rel="noopener">CF 689D</a>, <a href="https://codeforces.com/problemset/problem/1454/F" target="_blank" rel="noopener">CF 1454F</a>, <a href="https://codeforces.com/problemset/problem/475/D" target="_blank" rel="noopener">CF 475D</a></td><td>Sparse Table + chặt nhị phân</td></tr>
+      <tr><td class="h">4 · Trên cây</td><td><a href="https://cses.fi/problemset/task/1688" target="_blank" rel="noopener">CSES 1688</a>, <a href="https://cses.fi/problemset/task/1135" target="_blank" rel="noopener">CSES 1135</a>, <a href="https://oj.vnoi.info/problem/lubenica" target="_blank" rel="noopener">VNOJ LUBENICA</a></td><td>Euler + RMQ</td></tr>
+      <tr><td class="h">5 · Chuỗi</td><td><a href="https://atcoder.jp/contests/abc213/tasks/abc213_f" target="_blank" rel="noopener">ABC213 F</a>, <a href="https://codeforces.com/problemset/problem/1073/G" target="_blank" rel="noopener">CF 1073G</a></td><td>Suffix Array + LCP + RMQ</td></tr>
+    </table>
+    <p class="txt">Đọc thêm: <a href="https://wiki.vnoi.info/algo/data-structures/rmq" target="_blank" rel="noopener">VNOI Wiki RMQ</a> · <a href="https://wiki.vnoi.info/algo/data-structures/lca" target="_blank" rel="noopener">LCA</a> · <a href="https://wiki.vnoi.info/algo/data-structures/deque-min-max" target="_blank" rel="noopener">deque min-max</a></p>
+  </div>
+  <div class="say" data-mood="talk">Bắt đầu từ hai bài CSES ở mức 1.</div>
+  <div class="notes"><p>Chỉ nêu lộ trình, không đọc từng bài. Mức 3 có CF 475D dùng Sparse Table cho gcd. Mức 4 có VNOJ LUBENICA: min trên đường đi giữa hai đỉnh, cần binary lifting vì Euler tour + RMQ không cho min trên đường đi.</p></div>
+</section>
+
+<section class="s" data-act="7" data-title="Tài liệu tham khảo" data-time="10" data-nonarr>
+  <div class="eyebrow"><b>Kết</b></div>
+  <h2 style="font-size:44px">Tài liệu tham khảo</h2>
+  <div class="body" style="padding-top:14px;padding-bottom:30px;gap:40px;font-size:24px;line-height:1.34;color:var(--ink2)">
+    <div class="grow stack" style="gap:7px">
+      <div><b class="q">Lý thuyết</b></div>
+      <div>[1] J. Vuillemin. A unifying look at data structures. <i>CACM</i> 23(4), 1980.</div>
+      <div>[2] H. N. Gabow, J. L. Bentley, R. E. Tarjan. Scaling and related techniques for geometry problems. <i>STOC</i> 1984.</div>
+      <div>[3] D. Harel, R. E. Tarjan. Fast algorithms for finding nearest common ancestors. <i>SIAM J. Comput.</i> 13(2), 1984.</div>
+      <div>[4] O. Berkman, U. Vishkin. Recursive star-tree parallel data structure. <i>SIAM J. Comput.</i> 22(2), 1993.</div>
+      <div>[5] M. A. Bender, M. Farach-Colton. The LCA problem revisited. <i>LATIN</i> 2000.</div>
+      <div>[6] J. Fischer, V. Heun. Theoretical and practical improvements on the RMQ-problem, with applications to LCA and LCE. <i>CPM</i> 2006.</div>
+      <div>[7] J. Fischer, V. Heun. Space-efficient preprocessing schemes for range minimum queries on static arrays. <i>SIAM J. Comput.</i> 40(2), 2011.</div>
+      <div>[8] A. Amir, J. Fischer, M. Lewenstein. Two-dimensional range minimum queries. <i>CPM</i> 2007.</div>
+      <div style="margin-top:6px"><b class="q">Thực nghiệm</b></div>
+      <div>[9] N. Baumstark, S. Gog, T. Heuer, J. Labeit. Practical range minimum queries revisited. <i>SEA</i> 2017. <a href="https://doi.org/10.4230/LIPIcs.SEA.2017.12" target="_blank" rel="noopener">doi</a></div>
+      <div>[10] T. Kowalski, S. Grabowski. Faster range minimum queries. <i>Softw. Pract. Exp.</i> 48, 2018.</div>
+      <div>[11] M. Dima, R. Ceterchi. Efficient range minimum queries using binary indexed trees. <i>Olympiads in Informatics</i> 9, 2015.</div>
+    </div>
+    <div class="grow stack" style="gap:7px">
+      <div><b class="q">Ứng dụng</b></div>
+      <div>[12] Y. Wang et al. OM³: An ordered multi-level min-max representation for interactive progressive visualization of time series. <i>SIGMOD</i> 2023. <a href="https://doi.org/10.1145/3589290" target="_blank" rel="noopener">doi</a></div>
+      <div>[13] C.-A. Leimeister, B. Morgenstern. kmacs: the k-mismatch average common substring approach to alignment-free sequence comparison. <i>Bioinformatics</i> 30(14), 2014. <a href="https://doi.org/10.1093/bioinformatics/btu331" target="_blank" rel="noopener">doi</a></div>
+      <div>[14] R. Varki, C. Boucher. Building genomic data structures from compressed representations using prefix-free parsing. <i>Genome Research</i> 36(6), 2026.</div>
+      <div>[15] S. Muthukrishnan. Efficient algorithms for document retrieval problems. <i>SODA</i> 2002.</div>
+      <div>[16] T. Gagie et al. Document retrieval on repetitive string collections. <i>Inf. Retrieval J.</i> 20, 2017. <a href="https://doi.org/10.1007/s10791-017-9297-7" target="_blank" rel="noopener">doi</a></div>
+      <div>[17] J. Gil, R. Kimmel. Efficient dilation, erosion, opening, and closing algorithms. <i>IEEE TPAMI</i> 24(12), 2002. <a href="https://doi.org/10.1109/TPAMI.2002.1114852" target="_blank" rel="noopener">doi</a></div>
+      <div style="margin-top:6px"><b class="q">Học liệu</b></div>
+      <div>[18] S. Wild. COMP526 Unit 9: Range-minimum queries (video). Stanford CS166: RMQ. Erik Demaine. MIT 6.851: Static Trees. cp-algorithms.</div>
+      <div style="margin-top:6px"><b class="q">Công cụ</b></div>
+      <div>Video dựng bằng <a href="https://github.com/3b1b/manim" target="_blank" rel="noopener">3b1b/manim</a>. Nhân vật π được vẽ lại, lấy cảm hứng từ phong cách video giải thích toán học.</div>
+    </div>
+  </div>
+  <div class="notes"><p>Không đọc. Slide này để người xem tra cứu sau.</p></div>
+</section>
+
+<section class="s" data-act="7" data-title="Cảm ơn" data-time="15" data-nonarr>
+  <div class="titlewrap">
+    <div class="grow">
+      <h1 style="font-size:104px">Cảm ơn thầy và các bạn<br>đã theo dõi!</h1>
+      <div class="sub">Mời thầy và các bạn đặt câu hỏi</div>
+    </div>
+    <div class="bigpi" data-w="bigpi" data-o='{"mood":"happy"}'></div>
+  </div>
+  <div class="notes"><p>Câu hỏi hay gặp. Truy vấn O(1) mà vẫn tính log? Tính sẵn bảng lg[] hoặc dùng __builtin_clz, tránh log2() số thực. Sparse Table khi có cập nhật? Hỏng tới Θ(n) ô, dùng Segment Tree. Giá trị trùng nhau? So cặp (giá trị, vị trí), chọn bên trái. Fischer–Heun hơn ở đâu? Xây và bộ nhớ O(n), đổi lại code dài hơn. Ai đạt xây O(n), truy vấn O(1) đầu tiên? Gabow, Bentley, Tarjan, năm 1984. Euler tour dài bao nhiêu? 2n − 1 phần tử.</p><p>Thêm: O(n) bộ nhớ là O(n) word, tức O(n log n) bit; 2n + o(n) bit là kết quả succinct riêng, chỉ trả vị trí. Bender và Farach-Colton 2000 là bản đơn giản hóa. Stack đơn điệu dựng cây Cartesian trong O(n); dựng đệ quy có thể O(n²) với mảng tăng dần. Có thể bấm O để nhảy nhanh tới slide liên quan.</p></div>
+</section>

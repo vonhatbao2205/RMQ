@@ -1,0 +1,40 @@
+<section class="s" data-act="3" data-title="Khi giá vé thay đổi" data-time="45">
+  <div class="eyebrow"><b>Áp dụng</b></div>
+  <h2>Giá đổi: Sparse Table sửa nhiều ô, Segment Tree một đường</h2>
+  <div class="body col">
+    <div data-w="dyn"></div>
+  </div>
+  <div class="say" data-mood="worried">Đổi giá một ngày: phải kiểm tra lại bao nhiêu ô?</div>
+  <div class="notes"><p>Ví dụ: A[5] từ 2 thành 10 thì đoạn [3,6] thành [4, 6, 10, 2], RMQ(3,6) đổi từ 5 sang 6. Những gì đã tính trước có thể hết đúng.</p><p>Sparse Table không bắt buộc xây lại toàn bộ O(n log n), chỉ cần tính lại các ô có đoạn chứa vị trí đó, nhưng số ô này là Θ(n) ở giữa mảng. Segment Tree chỉ sửa log₂ n + 1 nút.</p></div>
+</section>
+
+<section class="s" data-act="3" data-title="Chọn cấu trúc nào?" data-time="45">
+  <div class="eyebrow"><b>Áp dụng</b></div>
+  <h2>Bốn câu hỏi để chọn cấu trúc</h2>
+  <div class="body col"><div data-w="chooser"></div></div>
+  <div class="say" data-step="0" data-mood="talk">Bấm một tình huống, hoặc tự trả lời từng câu.</div>
+  <div class="say" data-step="1" data-mood="happy">Bài vé: bảng giá chốt, rất nhiều truy vấn, đủ RAM: Sparse Table.</div>
+  <div class="notes"><p>Bốn câu hỏi này là kết luận thực dụng của cả phần. Fischer–Heun được giải thích ở phần tiếp theo. Ngưỡng cụ thể lấy từ benchmark.</p></div>
+</section>
+
+<section class="s" data-act="3" data-title="Bảng so sánh các CTDL" data-time="40">
+  <div class="eyebrow"><b>Áp dụng</b></div>
+  <h2>So sánh các cấu trúc dữ liệu</h2>
+  <div class="body col">
+    <table class="t" style="font-size:28px">
+      <tr><th>Cấu trúc</th><th>Xây</th><th>Truy vấn</th><th>Sửa</th><th>Bộ nhớ</th><th>Hợp khi</th></tr>
+      <tr><td class="h c-scan">Duyệt</td><td>—</td><td>$O(n)$</td><td>$O(1)$</td><td>$O(1)$</td><td>Ít truy vấn, đoạn ngắn</td></tr>
+      <tr><td class="h c-sqrt">Chia khối √n</td><td>$O(n)$</td><td>$O(\sqrt n)$</td><td>$O(\sqrt n)$</td><td>$O(\sqrt n)$</td><td>Đơn giản, ít bộ nhớ</td></tr>
+      <tr><td class="h c-seg">Segment Tree</td><td>$O(n)$</td><td>$O(\log n)$</td><td>$O(\log n)$</td><td>$O(n)$</td><td>Có cập nhật</td></tr>
+      <tr><td class="h">Fenwick hai cây</td><td>$O(n)$</td><td>$O(\log n)$</td><td>$O(\log n)$*</td><td>$O(n)$</td><td>Có cập nhật</td></tr>
+      <tr><td class="h c-sparse">Sparse Table</td><td>$O(n\log n)$</td><td>$O(1)$</td><td>$O(n)$</td><td>$O(n\log n)$</td><td>Tĩnh, nhiều query</td></tr>
+      <tr><td class="h">Disjoint Sparse Table</td><td>$O(n\log n)$</td><td>$O(1)$</td><td>—</td><td>$O(n\log n)$</td><td>Phép không lũy đẳng</td></tr>
+      <tr class="hl-fh"><td class="h c-fh">Fischer–Heun</td><td>$O(n)$</td><td>$O(1)$</td><td>—</td><td>$O(n)$</td><td>Tĩnh, $n$ lớn</td></tr>
+      <tr><td class="h">Succinct RMQ</td><td>$O(n)$</td><td>$O(1)$</td><td>—</td><td>$2n+o(n)$ bit</td><td>Bộ nhớ cực ít</td></tr>
+      <tr><td class="h">Deque đơn điệu</td><td colspan="2">$O(n)$ cho mọi cửa sổ</td><td>—</td><td>$O(k)$</td><td>Cửa sổ trượt</td></tr>
+    </table>
+    <p class="small">* khấu hao, theo Dima &amp; Ceterchi (2015)</p>
+  </div>
+  <div class="say" data-mood="talk">Dòng màu cam: xây $O(n)$ mà truy vấn $O(1)$. Làm sao được?</div>
+  <div class="notes"><p>Không đọc hết bảng; đây là bảng để tra lại sau buổi. Bảng mọi đoạn: O(n²) xây, O(1) truy vấn, O(n²) bộ nhớ, chỉ hợp n rất nhỏ. Succinct (Fischer &amp; Heun 2011) chỉ trả về vị trí và không lưu giá trị của mảng. Bộ nhớ Fischer–Heun tính theo word.</p><p>Dẫn sang phần tối ưu qua dòng Fischer–Heun.</p></div>
+</section>

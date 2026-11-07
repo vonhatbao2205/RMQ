@@ -1,0 +1,129 @@
+<section class="s" data-act="5" data-title="Đo như thế nào" data-time="40">
+  <div class="eyebrow"><b>Benchmark</b></div>
+  <h2>Tự đo 5 cấu trúc</h2>
+  <div class="body col">
+    <div class="rowx" style="gap:16px;flex-wrap:nowrap">
+      <span class="tag" style="font-size:28px;color:var(--scan);border-color:var(--scan)">Duyệt</span>
+      <span class="tag" style="font-size:28px;color:var(--sqrt);border-color:var(--sqrt)">Chia khối √n</span>
+      <span class="tag" style="font-size:28px;color:var(--seg);border-color:var(--seg)">Segment Tree</span>
+      <span class="tag" style="font-size:28px;color:var(--fh);border-color:var(--fh)">Fischer–Heun</span>
+      <span class="tag" style="font-size:28px;color:var(--sparse);border-color:var(--sparse)">Sparse Table</span>
+    </div>
+    <div style="display:flex;gap:60px">
+      <div class="grow stack">
+        <h3>Bốn thí nghiệm</h3>
+        <ul class="plain">
+          <li>Kích thước mảng $n$</li>
+          <li>Độ dài đoạn truy vấn $L$</li>
+          <li>Số truy vấn $q$</li>
+          <li>Tỉ lệ cập nhật</li>
+        </ul>
+      </div>
+      <div class="grow stack">
+        <h3>Để kết quả đáng tin</h3>
+        <ul class="plain">
+          <li>Kiểm tra đúng trên 36,4 triệu đoạn trước khi đo</li>
+          <li>Mỗi cấu hình chạy 5 lần, lấy trung vị</li>
+          <li>i5-13500HX, GCC 15.3, <span class="mono">-O3</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="say" data-mood="talk">Cùng dữ liệu, cùng bộ truy vấn, và phải trả lời đúng hết trước khi đo.</div>
+  <div class="notes"><p>Fischer–Heun ở đây cài đặt đúng cấu trúc vừa trình bày: b = ⌊¼ log₂ n⌋, bảng chung theo loại, Sparse Table trên đại diện. Segment Tree lặp từ dưới lên, 2n ô. Sparse Table bản cổ điển, mảng phẳng.</p><p>Môi trường: ghim một P-core, L1d 48 KiB, L2 1,25 MiB, L3 24 MiB, -O3 -march=native, laptop không cô lập hoàn toàn. Checksum đáp án khớp trên mọi lượt đo; đổi thứ tự chạy giữa các lần. Bộ nhớ là kích thước mảng phụ, chưa tính mảng đầu vào. Dữ liệu: số nguyên ngẫu nhiên 0 đến 10^9.</p><p>Đây là microbenchmark trên một máy: cho thấy xu hướng, không gộp với số liệu của các paper. Mã nguồn và CSV trong seminar/v2/benchmark.</p></div>
+</section>
+
+<section class="s" data-act="5" data-title="Thời gian truy vấn theo n" data-time="45">
+  <div class="eyebrow"><b>Benchmark</b></div>
+  <h2>Big-O đúng xu hướng, cache quyết định hằng số</h2>
+  <div class="body">
+    <div data-w="chartN" style="flex:none;width:1180px"></div>
+    <div class="grow stack">
+      <p class="lead"><b class="c-scan">Duyệt</b> tăng tuyến tính</p>
+      <p class="lead"><b class="c-sparse">Sparse Table</b>: 2,6 → 13,3 ns</p>
+      <p class="lead"><b class="c-fh">Fischer–Heun</b>: chậm hơn khoảng 2,5 lần</p>
+    </div>
+  </div>
+  <div class="say" data-mood="talk">Thang log: mỗi vạch gấp 10 lần. $O(1)$ vẫn chậm dần khi bảng rơi khỏi cache.</div>
+  <div class="notes"><p>n = 2^23: Duyệt khoảng 283 µs mỗi truy vấn; Sparse Table 13,3 ns (2,6 ns ở 2^16) vì bảng 88 byte mỗi phần tử rơi khỏi cache; Fischer–Heun 32,7 ns vì tra nhiều bảng hơn; Segment Tree 121 ns, tăng chậm theo log n. Đường gạch đứng: n ứng với kích thước L1, L2, L3 khi mảng 4 byte mỗi phần tử. Rê chuột để đọc từng giá trị.</p></div>
+</section>
+
+<section class="s" data-act="5" data-title="Cái giá của O(1)" data-time="35">
+  <div class="eyebrow"><b>Benchmark</b></div>
+  <h2>Cái giá của truy vấn nhanh</h2>
+  <div class="body col">
+    <div data-w="costBars"></div>
+    <div class="key pi"><p class="lead">Sparse Table truy vấn nhanh hơn Fischer–Heun <b>1,75×</b>, nhưng xây lâu hơn <b>5×</b> và tốn bộ nhớ <b>5,5×</b>.</p></div>
+  </div>
+  <div class="say" data-mood="think">Không có gì miễn phí.</div>
+  <div class="notes"><p>n = 2^20. Sparse Table: xây 29 ms, 76 byte mỗi phần tử, 6,4 ns mỗi truy vấn. Fischer–Heun: 5,8 ms, 13,8 byte, 11,3 ns. Segment Tree: 1,07 ms, 8 byte, 96 ns. Duyệt khoảng 20 µs mỗi truy vấn, vượt khỏi thang đo.</p></div>
+</section>
+
+<section class="s" data-act="5" data-title="Đoạn ngắn: duyệt thắng" data-time="35">
+  <div class="eyebrow"><b>Benchmark</b></div>
+  <h2>Đoạn ngắn: quét thẳng nhanh nhất</h2>
+  <div class="body">
+    <div data-w="chartL" style="flex:none;width:1180px"></div>
+    <div class="grow stack">
+      <p class="lead"><b class="c-scan">Duyệt</b>: 4–6 ns khi $L\le16$</p>
+      <p class="lead"><b class="c-sparse">Sparse Table</b>: phẳng khoảng 7 ns</p>
+      <p class="lead"><b class="c-seg">Segment Tree</b>: tăng theo $\log L$</p>
+    </div>
+  </div>
+  <div class="say" data-mood="surprised">Đoạn vài chục phần tử: vòng lặp đơn giản thắng cả cấu trúc $O(1)$.</div>
+  <div class="notes"><p>n = 2^22. Fischer–Heun cũng phẳng, khoảng 13–24 ns. Segment Tree từ 7,5 lên 77 ns. Paper Fischer–Heun 2006 cũng thấy quét trực tiếp rất nhanh với đoạn tới khoảng 100 phần tử trên máy của họ. Không dùng kết quả này để phủ nhận O(n) tệ nhất của duyệt.</p><p>Ý nghĩa thực tế: nên biết đoạn truy vấn thường dài bao nhiêu. Thuật toán lai: đoạn ngắn thì quét, đoạn dài thì tra bảng.</p></div>
+</section>
+
+<section class="s" data-act="5" data-title="Bao nhiêu truy vấn thì đáng?" data-time="55">
+  <div class="eyebrow"><b>Benchmark</b></div>
+  <h2>Truy vấn $O(1)$ chưa chắc tổng thời gian nhỏ nhất</h2>
+  <div class="body col"><div data-w="breakeven"></div></div>
+  <div class="say" data-mood="talk">Kéo $q$: ít truy vấn thì cấu trúc xây nhanh thắng.</div>
+  <div class="notes"><p>Tổng thời gian T(q) = P + q·Q, n = 2^20. Điểm hòa vốn q* = (P_A − P_B)/(Q_B − Q_A), tính từ số đo: Fischer–Heun vượt Segment Tree ở q ≈ 59.000; Sparse Table vượt Fischer–Heun ở q ≈ 9,4 triệu. Rất ít truy vấn thì Duyệt thắng. Đường Duyệt và Chia khối dừng sớm vì quá chậm để đo tiếp.</p></div>
+</section>
+
+<section class="s" data-act="5" data-title="Khi có cập nhật" data-time="35">
+  <div class="eyebrow"><b>Benchmark</b></div>
+  <h2>Có cập nhật: chỉ còn Segment Tree và chia khối</h2>
+  <div class="body">
+    <div data-w="chartMixed" style="flex:none;width:1180px"></div>
+    <div class="grow stack">
+      <p class="lead"><b class="c-sqrt">Chia khối</b> thắng khi ít cập nhật</p>
+      <p class="lead"><b class="c-seg">Segment Tree</b> thắng khi cập nhật trên khoảng 50–75%</p>
+    </div>
+  </div>
+  <div class="say" data-mood="think">Về bậc thì $\log n$ tốt hơn $\sqrt n$, nhưng hằng số của phép quét rất nhỏ.</div>
+  <div class="notes"><p>n = 2^17, 131.072 thao tác. Tổng thời gian: 0% cập nhật: chia khối 8,0 ms, Segment 11,0 ms; 50%: 5,6 và 6,4 ms; 75%: 4,1 và 3,8 ms; 99%: 2,7 và 1,3 ms. Sparse Table và Fischer–Heun không tham gia vì được thiết kế cho mảng tĩnh. Ở n lớn hơn, chia khối chậm đi nhanh hơn nhiều.</p></div>
+</section>
+
+<section class="s" data-act="5" data-title="Các nghiên cứu khác đo được gì" data-time="30" data-opt>
+  <div class="eyebrow"><b>Benchmark</b></div>
+  <h2>Các nghiên cứu khác đo được gì?</h2>
+  <div class="body col">
+    <table class="t" style="width:auto;margin:0 auto">
+      <tr><th>Nguồn</th><th>Kết quả chính</th></tr>
+      <tr><td class="h">Fischer &amp; Heun 2006</td><td>Truy vấn nhanh gấp khoảng 2 lần Berkman–Vishkin</td></tr>
+      <tr><td class="h">Dima &amp; Ceterchi 2015</td><td>Fenwick hai cây nhanh hơn Segment Tree</td></tr>
+      <tr><td class="h">Baumstark et al. 2017</td><td>RMQ tiết kiệm bộ nhớ, nhanh hơn tới 3 lần</td></tr>
+      <tr><td class="h">Kowalski &amp; Grabowski 2018</td><td>$n=10^9$: xây 0,6 s thay vì 436,6 s</td></tr>
+    </table>
+  </div>
+  <div class="say" data-mood="neutral">Số khác nhau theo máy, nhưng xu hướng giống số đo của nhóm.</div>
+  <div class="notes"><p>Fischer &amp; Heun 2006: n = 10^7, 10^6 truy vấn, Athlon XP3000; bản quét biên O(log n) còn nhỉnh hơn bản O(1); quét thẳng nhanh với đoạn tới khoảng 100 phần tử. Dima &amp; Ceterchi 2015, 10^7 thao tác: cập nhật 0,672 s so với 1,274 s; truy vấn 0,551 s so với 2,397 s. Kowalski &amp; Grabowski 2018: Sparse Table theo khối xây 0,6 s, Sparse Table đầy đủ 436,6 s.</p><p>Mỗi dòng là số của tác giả trên máy của họ, không so sánh trực tiếp với nhau hay với số đo của nhóm.</p></div>
+</section>
+
+<section class="s" data-act="5" data-title="Bốn kết luận từ benchmark" data-time="30">
+  <div class="eyebrow"><b>Benchmark</b></div>
+  <h2>Bốn điều rút ra từ số đo</h2>
+  <div class="body bigcards" style="display:grid;grid-template-columns:1fr 1fr;gap:32px;align-content:center">
+    <div class="key rise" data-at="0"><h3 class="c-sparse">Truy vấn $O(1)$ chưa chắc tổng nhanh nhất</h3><p class="txt" style="margin-top:8px">Luôn tính $T=P+qQ$.</p></div>
+    <div class="key rise" data-at="1"><h3 class="c-fh">Bộ nhớ là chi phí thật</h3><p class="txt" style="margin-top:8px">Bảng lớn rơi khỏi cache.</p></div>
+    <div class="key rise" data-at="2"><h3 class="c-seg">Điều kiện bài toán đổi người thắng</h3><p class="txt" style="margin-top:8px">Đoạn ngắn, cập nhật, số truy vấn.</p></div>
+    <div class="key rise" data-at="3"><h3 class="c-pi">Big-O cho xu hướng, đo cho quyết định</h3><p class="txt" style="margin-top:8px">Đo trên đúng dữ liệu của mình.</p></div>
+  </div>
+  <div class="say" data-step="0" data-mood="talk">Đừng chỉ nhìn cột truy vấn.</div>
+  <div class="say" data-step="1" data-mood="talk">Bộ nhớ ảnh hưởng ngược lại đến tốc độ.</div>
+  <div class="say" data-step="2" data-mood="talk">Không có cấu trúc nào thắng mọi hoàn cảnh.</div>
+  <div class="say" data-step="3" data-mood="happy">Giờ xem RMQ được dùng ở đâu ngoài đời.</div>
+  <div class="notes"><p>Với n = 2^20: Segment Tree thắng đến q ≈ 6·10^4, Fischer–Heun đến q ≈ 9·10^6, rồi mới đến Sparse Table. Sparse Table tốn 76–88 byte mỗi phần tử, Fischer–Heun 14–16 byte. Hằng số, cache, rẽ nhánh và SIMD không nằm trong Big-O.</p></div>
+</section>

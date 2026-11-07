@@ -1,0 +1,96 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><title>So sánh font</title>
+<style>
+@import url("vendor/fonts/be-vietnam-pro/400.css");
+@import url("vendor/fonts/be-vietnam-pro/600.css");
+@import url("vendor/fonts/be-vietnam-pro/700.css");
+@import url("vendor/fonts/be-vietnam-pro/800.css");
+@import url("vendor/fonts/ibm-plex-mono/400.css");
+@import url("vendor/fonts/ibm-plex-mono/600.css");
+@import url("vendor/fonts/ibm-plex-mono/700.css");
+@import url("vendor/fonts/ibm-plex-mono/800.css");
+@import url("vendor/fonts/ibm-plex-sans/400.css");
+@import url("vendor/fonts/ibm-plex-sans/600.css");
+@import url("vendor/fonts/ibm-plex-sans/700.css");
+@import url("vendor/fonts/ibm-plex-sans/800.css");
+@import url("vendor/fonts/inter/400.css");
+@import url("vendor/fonts/inter/600.css");
+@import url("vendor/fonts/inter/700.css");
+@import url("vendor/fonts/inter/800.css");
+@import url("vendor/fonts/jetbrains-mono/400.css");
+@import url("vendor/fonts/jetbrains-mono/600.css");
+@import url("vendor/fonts/lexend/400.css");
+@import url("vendor/fonts/lexend/600.css");
+@import url("vendor/fonts/lexend/700.css");
+@import url("vendor/fonts/lexend/800.css");
+@import url("vendor/fonts/plus-jakarta-sans/400.css");
+@import url("vendor/fonts/plus-jakarta-sans/600.css");
+@import url("vendor/fonts/plus-jakarta-sans/700.css");
+@import url("vendor/fonts/plus-jakarta-sans/800.css");
+@import url("vendor/fonts/source-sans-3/400.css");
+@import url("vendor/fonts/source-sans-3/600.css");
+@import url("vendor/fonts/source-sans-3/700.css");
+@import url("vendor/fonts/source-sans-3/800.css");
+@import url("vendor/fonts/source-serif-4/400.css");
+@import url("vendor/fonts/source-serif-4/600.css");
+@import url("vendor/fonts/source-serif-4/700.css");
+@import url("vendor/fonts/source-serif-4/800.css");
+body { margin:0; background:#ECEEF1; font-family:sans-serif; }
+.grid { display:grid; grid-template-columns:repeat(2, 790px); gap:20px; padding:20px; }
+.s { background:#FAFAF7; border-radius:14px; padding:26px 34px; height:410px; box-sizing:border-box; position:relative; color:#1C2330; }
+.lab { position:absolute; right:14px; top:10px; font:600 15px sans-serif; color:#fff; background:#1C2330; padding:3px 10px; border-radius:6px; }
+.k { font:700 13px var(--b); letter-spacing:.14em; color:#0F4D92; margin-top:14px; }
+.t { font:700 34px/1.15 var(--h); margin:8px 0 14px; letter-spacing:-.01em; }
+.p { font:400 21px/1.42 var(--b); }
+.row { display:flex; gap:16px; align-items:center; margin-top:14px; }
+.pill { font:600 17px var(--m); color:#0F4D92; background:#E3ECF7; border:2px solid #B9CDE6; padding:3px 12px; border-radius:99px; }
+.num { font:600 19px var(--b); color:#5B6473; font-variant-numeric: tabular-nums; }
+.code { font:400 17px var(--m); background:#fff; border:1px solid #E1E5EA; border-radius:8px; padding:8px 12px; margin-top:14px; }
+</style></head><body><div class="grid">
+<div class="s" style="--h:'Inter';--b:'Inter';--m:'JetBrains Mono'">
+  <div class="lab">A · Inter + JetBrains Mono</div>
+  <div class="k">PHẦN 2 · CƠ SỞ THUẬT TOÁN</div>
+  <div class="t">Sparse Table: chỉ lưu các đoạn dài lũy thừa của 2</div>
+  <div class="p">Hai đoạn chồng lấn phủ kín [l, r] vì min(x, x) = x — tính lũy đẳng. Tối ưu hóa và phân tích độ phức tạp; ứng dụng thực tiễn, bài tập.</div>
+  <div class="row"><span class="pill">⟨O(n log n), O(1)⟩</span><span class="num">2²⁰ ≈ 1 048 576 · 9,8 ns · 76 MiB</span></div>
+  <div class="code">int k = __lg(r - l + 1);  // ⌊log₂ L⌋</div>
+</div>
+<div class="s" style="--h:'IBM Plex Sans';--b:'IBM Plex Sans';--m:'IBM Plex Mono'">
+  <div class="lab">B · IBM Plex Sans + IBM Plex Mono</div>
+  <div class="k">PHẦN 2 · CƠ SỞ THUẬT TOÁN</div>
+  <div class="t">Sparse Table: chỉ lưu các đoạn dài lũy thừa của 2</div>
+  <div class="p">Hai đoạn chồng lấn phủ kín [l, r] vì min(x, x) = x — tính lũy đẳng. Tối ưu hóa và phân tích độ phức tạp; ứng dụng thực tiễn, bài tập.</div>
+  <div class="row"><span class="pill">⟨O(n log n), O(1)⟩</span><span class="num">2²⁰ ≈ 1 048 576 · 9,8 ns · 76 MiB</span></div>
+  <div class="code">int k = __lg(r - l + 1);  // ⌊log₂ L⌋</div>
+</div>
+<div class="s" style="--h:'Plus Jakarta Sans';--b:'Inter';--m:'JetBrains Mono'">
+  <div class="lab">C · Plus Jakarta Sans (tiêu đề) + Inter (nội dung)</div>
+  <div class="k">PHẦN 2 · CƠ SỞ THUẬT TOÁN</div>
+  <div class="t">Sparse Table: chỉ lưu các đoạn dài lũy thừa của 2</div>
+  <div class="p">Hai đoạn chồng lấn phủ kín [l, r] vì min(x, x) = x — tính lũy đẳng. Tối ưu hóa và phân tích độ phức tạp; ứng dụng thực tiễn, bài tập.</div>
+  <div class="row"><span class="pill">⟨O(n log n), O(1)⟩</span><span class="num">2²⁰ ≈ 1 048 576 · 9,8 ns · 76 MiB</span></div>
+  <div class="code">int k = __lg(r - l + 1);  // ⌊log₂ L⌋</div>
+</div>
+<div class="s" style="--h:'Source Serif 4';--b:'Source Sans 3';--m:'JetBrains Mono'">
+  <div class="lab">D · Source Serif 4 (tiêu đề) + Source Sans 3</div>
+  <div class="k">PHẦN 2 · CƠ SỞ THUẬT TOÁN</div>
+  <div class="t">Sparse Table: chỉ lưu các đoạn dài lũy thừa của 2</div>
+  <div class="p">Hai đoạn chồng lấn phủ kín [l, r] vì min(x, x) = x — tính lũy đẳng. Tối ưu hóa và phân tích độ phức tạp; ứng dụng thực tiễn, bài tập.</div>
+  <div class="row"><span class="pill">⟨O(n log n), O(1)⟩</span><span class="num">2²⁰ ≈ 1 048 576 · 9,8 ns · 76 MiB</span></div>
+  <div class="code">int k = __lg(r - l + 1);  // ⌊log₂ L⌋</div>
+</div>
+<div class="s" style="--h:'Lexend';--b:'Lexend';--m:'JetBrains Mono'">
+  <div class="lab">E · Lexend</div>
+  <div class="k">PHẦN 2 · CƠ SỞ THUẬT TOÁN</div>
+  <div class="t">Sparse Table: chỉ lưu các đoạn dài lũy thừa của 2</div>
+  <div class="p">Hai đoạn chồng lấn phủ kín [l, r] vì min(x, x) = x — tính lũy đẳng. Tối ưu hóa và phân tích độ phức tạp; ứng dụng thực tiễn, bài tập.</div>
+  <div class="row"><span class="pill">⟨O(n log n), O(1)⟩</span><span class="num">2²⁰ ≈ 1 048 576 · 9,8 ns · 76 MiB</span></div>
+  <div class="code">int k = __lg(r - l + 1);  // ⌊log₂ L⌋</div>
+</div>
+<div class="s" style="--h:'Be Vietnam Pro';--b:'Be Vietnam Pro';--m:'JetBrains Mono'">
+  <div class="lab">F · Be Vietnam Pro (hiện tại)</div>
+  <div class="k">PHẦN 2 · CƠ SỞ THUẬT TOÁN</div>
+  <div class="t">Sparse Table: chỉ lưu các đoạn dài lũy thừa của 2</div>
+  <div class="p">Hai đoạn chồng lấn phủ kín [l, r] vì min(x, x) = x — tính lũy đẳng. Tối ưu hóa và phân tích độ phức tạp; ứng dụng thực tiễn, bài tập.</div>
+  <div class="row"><span class="pill">⟨O(n log n), O(1)⟩</span><span class="num">2²⁰ ≈ 1 048 576 · 9,8 ns · 76 MiB</span></div>
+  <div class="code">int k = __lg(r - l + 1);  // ⌊log₂ L⌋</div>
+</div></div></body></html>

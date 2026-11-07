@@ -1,0 +1,11 @@
+/* Light highlight.js theme (GitHub-like) */
+.hljs { color: #1C2330; background: #fff; }
+.hljs-comment, .hljs-quote { color: #6A737D; font-style: italic; }
+.hljs-keyword, .hljs-selector-tag, .hljs-built_in, .hljs-type { color: #B64342; font-weight: 600; }
+.hljs-string, .hljs-meta .hljs-string { color: #2B8A3E; }
+.hljs-number, .hljs-literal { color: #0F4D92; }
+.hljs-title, .hljs-title.function_, .hljs-section { color: #9A4D8E; font-weight: 600; }
+.hljs-meta, .hljs-meta .hljs-keyword { color: #42949E; }
+.hljs-params, .hljs-variable, .hljs-attr { color: #1C2330; }
+.reveal .hljs.has-highlights tr:not(.highlight-line) { opacity: .28; }
+.reveal pre code.hljs { overflow: auto; }

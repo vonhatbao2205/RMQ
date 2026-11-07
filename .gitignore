@@ -1,0 +1,24 @@
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Large downloaded reference videos (>100MB, exceeds GitHub limits)
+YTDown.com_*.mp4
+
+# Environment / secrets
+.env
+.env.*
+.vercel
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

@@ -1,0 +1,81 @@
+<section class="s" data-act="0" data-title="Range Minimum Query" data-time="30" data-nonarr>
+  <div class="titlewrap">
+    <div class="grow">
+      <h1>Range Minimum Query</h1>
+      <div class="sub">Truy vấn giá trị nhỏ nhất trên đoạn</div>
+      <div class="who">
+        <div class="members">
+          <span>Phạm Lê Huy Hoàng</span><span class="mono">24120182</span>
+          <span>Võ Nhất Bảo</span><span class="mono">24120166</span>
+          <span>Nguyễn Đức Lãm</span><span class="mono">24120083</span>
+        </div>
+        <div>GVHD: <b>Nguyễn Hải Đăng</b> · 03/11/2026</div>
+      </div>
+    </div>
+    <div class="bigpi" data-w="bigpi" data-o='{"mood":"happy"}'></div>
+  </div>
+  <div class="notes"><p>Giới thiệu nhóm. Cả buổi đi theo một câu chuyện: Pi tìm vé máy bay rẻ nhất. Mỗi thuật toán xuất hiện vì câu chuyện cần nó.</p><p>Phím tắt: → đi tiếp, A tự chạy, O tổng quan, N ghi chú, T bản rút gọn, F toàn màn hình.</p></div>
+</section>
+
+<section class="s video" data-act="0" data-title="Pi đi tìm vé rẻ" data-time="35">
+  <video src="media/M01_Story.mp4" poster="media/posters/M01_Story.jpg" preload="auto"></video>
+  <div class="notes"><p>Để video chạy, nói theo phụ đề. Video dừng sau lượt tìm đầu tiên của Pi: đọc từng ngày trong khoảng, nhớ ngày rẻ nhất. Hai slide sau để người nghe tự thử thêm khoảng ngày và thấy các ô bị đọc lại.</p><p>Phím V tạm dừng, J/L lùi hoặc tới 5 giây, R phát lại, [ và ] đổi tốc độ. Rê chuột lên video để hiện thanh tua.</p></div>
+</section>
+
+<section class="s" data-act="0" data-title="Thử đặt vé: mỗi người một khoảng ngày" data-time="40" data-dwell="2500">
+  <div class="eyebrow"><b>Câu chuyện</b></div>
+  <h2>Trong khoảng ngày này, ngày nào rẻ nhất?</h2>
+  <div class="body col">
+    <div data-w="tickets"></div>
+  </div>
+  <div class="say" data-step="0" data-mood="talk">Bạn thử chọn hai ngày rồi bấm tìm xem.</div>
+  <div class="say" data-step="1" data-mood="think">Hệ thống đọc từng ô trong khoảng, nhớ ô rẻ nhất.</div>
+  <div class="say" data-step="2" data-mood="worried">Người khác truy vấn khoảng khác: các ô cũ lại bị đọc thêm lần nữa.</div>
+  <div class="notes"><p>Hệ thống đã thu thập giá vé thấp nhất mỗi ngày cho hành trình TP.HCM → Hà Nội. Người dùng chọn khoảng ngày có thể khởi hành, hệ thống trả về ngày rẻ nhất. Giá giả lập, đơn vị triệu đồng.</p><p>Nếu có thể, mời một người nghe chọn khoảng ngày và bấm. Bộ đếm ô đã đọc tăng dần: đó là chi phí.</p></div>
+</section>
+
+<section class="s" data-act="0" data-title="Nhiều truy vấn, ô cũ bị đọc lại" data-time="35">
+  <div class="eyebrow"><b>Câu chuyện</b></div>
+  <h2>Càng nhiều truy vấn, ô cũ càng bị đọc lại</h2>
+  <div class="body col">
+    <div data-w="crowd"></div>
+    <div class="key q rise" data-at="2" style="text-align:center"><p class="lead"><b>Yêu cầu:</b> với mỗi khoảng ngày, trả về giá thấp nhất thật nhanh.</p></div>
+  </div>
+  <div class="say" data-step="0" data-mood="neutral">Ba người, ba khoảng chồng lên nhau.</div>
+  <div class="say" data-step="1" data-mood="surprised">Sáu người đã đọc nhiều hơn cả mảng. Hàng nghìn người thì sao?</div>
+  <div class="say" data-step="2" data-mood="think">Đây là yêu cầu của cả buổi hôm nay.</div>
+  <div class="notes"><p>Chỉ ra phần chồng lấn giữa các thanh. Số ô đọc tăng theo số truy vấn, trong khi dữ liệu không đổi.</p></div>
+</section>
+
+<section class="s" data-act="0" data-title="Giá vé có đổi không?" data-time="40">
+  <div class="eyebrow"><b>Câu chuyện</b></div>
+  <h2>Giá vé có đổi không?</h2>
+  <div class="body col">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:34px">
+      <div class="key rise" data-at="1" style="border-color:var(--sparse)">
+        <h3 class="c-sparse">Bảng giá đã chốt</h3>
+        <p class="lead" style="margin-top:12px">→ <b class="c-sparse">Sparse Table</b>, <b class="c-fh">Fischer–Heun</b></p>
+      </div>
+      <div class="key rise" data-at="2" style="border-color:var(--seg)">
+        <h3 class="c-seg">Giá đổi liên tục</h3>
+        <p class="lead" style="margin-top:12px">→ <b class="c-seg">Segment Tree</b></p>
+      </div>
+    </div>
+    <div class="rise" data-at="3">
+      <h3 class="road-title">Lộ trình hôm nay</h3>
+      <div class="road">
+        <div class="road-step" style="--c:var(--query);--i:0"><span class="road-n">1</span><b>Bài toán</b><span class="road-d">RMQ là gì, đo chi phí thế nào</span></div>
+        <div class="road-step" style="--c:var(--sparse);--i:1"><span class="road-n">2</span><b>Cơ sở thuật toán</b><span class="road-d">Segment Tree, Sparse Table</span></div>
+        <div class="road-step" style="--c:var(--seg);--i:2"><span class="road-n">3</span><b>Áp dụng</b><span class="road-d">Giải bài vé, chọn cấu trúc</span></div>
+        <div class="road-step" style="--c:var(--fh);--i:3"><span class="road-n">4</span><b>Tối ưu</b><span class="road-d">Fischer–Heun: xây O(n), truy vấn O(1)</span></div>
+        <div class="road-step" style="--c:var(--sqrt);--i:4"><span class="road-n">5</span><b>Benchmark</b><span class="road-d">Đo 5 cấu trúc, ai thắng khi nào</span></div>
+        <div class="road-step" style="--c:var(--ans);--i:5"><span class="road-n">6</span><b>Thực tế</b><span class="road-d">DNA, tìm kiếm, biểu đồ, ảnh</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="say" data-step="0" data-mood="think">Giá vé ngoài đời thay đổi liên tục. Phải tách hai tình huống.</div>
+  <div class="say" data-step="1" data-mood="talk">Bảng giá đã chốt: được phép chuẩn bị thật kỹ.</div>
+  <div class="say" data-step="2" data-mood="talk">Giá đổi liên tục: những gì tính trước có thể hết đúng.</div>
+  <div class="say" data-step="3" data-mood="happy">Vì vậy RMQ có nhiều lời giải. Đây là đường đi hôm nay.</div>
+  <div class="notes"><p>Dữ liệu không đổi trong lúc truy vấn: hệ thống dùng bảng giá chốt tại một thời điểm, dẫn đến Sparse Table. Dữ liệu được cập nhật: phải sửa và vẫn trả lời nhanh, dẫn đến Segment Tree.</p><p>Lộ trình: định nghĩa và chi phí; duyệt, bảng mọi đoạn, chia khối, Segment Tree, Sparse Table; giải bài vé và so sánh CTDL; Fischer–Heun; benchmark 5 cấu trúc; ứng dụng thực tế.</p></div>
+</section>

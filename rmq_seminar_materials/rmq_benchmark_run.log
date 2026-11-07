@@ -1,0 +1,13 @@
+self_test_static_intervals=915200, mixed tests passed
+completed static n=1000 uniform_endpoints
+completed static n=1000 length16
+completed static n=10000 uniform_endpoints
+completed static n=10000 length16
+completed static n=100000 uniform_endpoints
+completed static n=100000 length16
+completed static n=200000 uniform_endpoints
+completed static n=200000 length16
+completed mixed updates=0%
+completed mixed updates=10%
+completed mixed updates=50%
+completed mixed updates=90%

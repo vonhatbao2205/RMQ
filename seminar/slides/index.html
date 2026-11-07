@@ -1,0 +1,1450 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Range Minimum Query — Seminar</title>
+<meta name="description" content="Seminar thuật toán: Range Minimum Query (RMQ) — bài toán, Sparse Table, Segment Tree, Cartesian tree, Fischer–Heun, RMQ tuyến tính, benchmark và ứng dụng.">
+<link rel="stylesheet" href="vendor/reveal/dist/reset.css">
+<link rel="stylesheet" href="vendor/reveal/dist/reveal.css">
+<link rel="stylesheet" href="css/hljs-light.css">
+<link rel="stylesheet" href="css/theme.css">
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- ===================================================== 0. MỞ ĐẦU -->
+<section class="title-slide" data-part="0" data-section="Mở đầu">
+  <div class="frame">
+    <div class="title-wrap">
+      <div class="title-left">
+        <div class="eyebrow">Seminar · Phân tích &amp; thiết kế thuật toán</div>
+        <h1>Range Minimum Query<br><span>từ \(O(n)\) xuống \(O(1)\)</span></h1>
+        <div class="subtitle">Sparse Table, cây Cartesian, Fischer–Heun và câu hỏi thực tế: <b>khi nào dùng cấu trúc nào?</b></div>
+        <div class="meta">
+          <b>Nhóm</b><span>[Thành viên 1] · [Thành viên 2] · [Thành viên 3]</span>
+          <b>GVHD</b><span>[Tên giảng viên]</span>
+          <b>Ngày</b><span>[dd/mm/2026]</span>
+        </div>
+      </div>
+      <div class="title-right">
+        <div class="formula-tag">\( \mathrm{RMQ}(l,r)=\arg\min_{l\le i\le r} A[i] \)</div>
+        <div style="position:relative;display:flex;align-items:flex-end;gap:12px">
+          <div class="tbar" style="height:220px;animation-delay:.05s"><span>5</span></div>
+          <div class="tbar inq" style="height:88px;animation-delay:.12s"><span>2</span></div>
+          <div class="tbar inq" style="height:264px;animation-delay:.19s"><span>6</span></div>
+          <div class="tbar inq" style="height:132px;animation-delay:.26s"><span>3</span></div>
+          <div class="tbar min" style="height:44px;animation-delay:.33s"><span>1</span></div>
+          <div class="tbar inq" style="height:308px;animation-delay:.40s"><span>7</span></div>
+          <div class="tbar inq" style="height:176px;animation-delay:.47s"><span>4</span></div>
+          <div class="tbar" style="height:352px;animation-delay:.54s"><span>8</span></div>
+          <div class="qbrace" style="left:58px;width:336px;bottom:-26px"></div>
+          <div class="qlabel" style="left:0;right:0;bottom:-72px;text-align:center">RMQ(2, 7) → vị trí 5, giá trị 1</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+[0:00 – 0:40] Chào thầy/cô và các bạn. Nhóm em trình bày về Range Minimum Query — RMQ.
+Câu hỏi xuyên suốt: với một mảng cố định và rất nhiều câu hỏi "phần tử nhỏ nhất trong đoạn [l, r]", ta tiền xử lý thế nào để trả lời nhanh — và trong thực tế, nên chọn cấu trúc nào.
+Hình bên phải: mảng ví dụ dùng xuyên suốt A = [5, 2, 6, 3, 1, 7, 4, 8]; truy vấn (2, 7) có đáp án là vị trí 5, giá trị 1.
+Phím tắt khi trình chiếu: S = speaker view, V = phát/dừng video, R = phát lại, [ ] = chỉnh tốc độ video, O = tổng quan slide.
+  </aside>
+</section>
+
+<section data-part="0" data-section="Mở đầu">
+  <div class="frame">
+    <div class="kicker">Lộ trình · 40 phút</div>
+    <h2 class="title">Năm phần, đi từ bài toán đến thực tế</h2>
+    <div class="content">
+      <div class="agenda">
+        <div class="step fragment rise" style="--c:var(--p1)"><div class="n">01</div><div class="h">Đặt vấn đề</div><div class="d">Bài toán RMQ, biến thể tĩnh/động, cách đo chi phí \(\langle P, Q \rangle\)</div><div class="t">0–4′</div></div>
+        <div class="step fragment rise" style="--c:var(--p2)"><div class="n">02</div><div class="h">Cơ sở thuật toán</div><div class="d">Duyệt, bảng mọi đoạn, chia khối, Segment Tree, Sparse Table + chứng minh</div><div class="t">4–13′</div></div>
+        <div class="step fragment rise" style="--c:var(--p3)"><div class="n">03</div><div class="h">Áp dụng giải bài toán</div><div class="d">Chạy tay, demo tương tác, giải CSES, chọn cấu trúc theo điều kiện</div><div class="t">13–19′</div></div>
+        <div class="step fragment rise" style="--c:var(--p4)"><div class="n">04</div><div class="h">Tối ưu &amp; độ phức tạp</div><div class="d">Cây Cartesian, Fischer–Heun \(\langle O(n), O(1) \rangle\), bitmask, cận dưới, benchmark tự đo</div><div class="t">19–33′</div></div>
+        <div class="step fragment rise" style="--c:var(--p5)"><div class="n">05</div><div class="h">Ứng dụng &amp; bài tập</div><div class="d">LCA, chuỗi (LCP/LCE), truy hồi tài liệu, xử lý ảnh, bài tập phân cấp</div><div class="t">33–40′</div></div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+[0:40 – 1:20] Năm phần đúng theo yêu cầu seminar. Điểm khác so với các bài trình bày RMQ thông thường: (1) có chứng minh và phân tích cả thời gian lẫn bộ nhớ, (2) có tối ưu đến ⟨O(n), O(1)⟩ và cận dưới, (3) có benchmark tự đo trên máy nhóm, đối chiếu với số liệu công bố, (4) ứng dụng có đối chiếu lời giải khác và phản ví dụ.
+Bản 30 phút: bỏ các slide đánh dấu [30′ bỏ qua] trong ghi chú.
+  </aside>
+</section>
+
+<!-- ===================================================== 1. ĐẶT VẤN ĐỀ -->
+<section class="divider" data-part="1" data-section="01 · Đặt vấn đề">
+  <div class="frame">
+    <div class="stripe"></div>
+    <div class="num">01</div>
+    <h2>Đặt vấn đề</h2>
+    <div class="lead">Một câu hỏi rất đơn giản — nhưng được hỏi hàng triệu lần trên cùng một dữ liệu.</div>
+    <div class="time">≈ 4 phút</div>
+  </div>
+  <aside class="notes">[1:20] Chuyển sang phần 1.</aside>
+</section>
+
+<section data-part="1" data-section="01 · Đặt vấn đề">
+  <div class="frame">
+    <div class="kicker">Động lực</div>
+    <h2 class="title">Cùng một mảng — rất nhiều câu hỏi “nhỏ nhất trong đoạn”</h2>
+    <div class="content">
+      <div class="cols-3">
+        <div class="card top fragment rise" style="--c:var(--blue)">
+          <div class="tag">Chuỗi thời gian</div>
+          <h3>Nhiệt độ thấp nhất từ ngày l đến ngày r?</h3>
+          <p class="muted" style="font-size:26px">Dữ liệu cảm biến, giá cổ phiếu, log hệ thống: dữ liệu đã thu xong, câu hỏi đến liên tục.</p>
+        </div>
+        <div class="card top fragment rise" style="--c:var(--linear)">
+          <div class="tag">Cây</div>
+          <h3>Tổ tiên chung gần nhất của u và v?</h3>
+          <p class="muted" style="font-size:26px">LCA quy về RMQ trên mảng độ sâu của Euler tour (Berkman–Vishkin; Bender–Farach-Colton).</p>
+        </div>
+        <div class="card top fragment rise" style="--c:var(--orange)">
+          <div class="tag">Chuỗi / DNA</div>
+          <h3>Hai hậu tố có chung tiền tố dài bao nhiêu?</h3>
+          <p class="muted" style="font-size:26px">LCE = RMQ trên mảng LCP của suffix array — lõi của so khớp xấp xỉ, chỉ mục nén.</p>
+        </div>
+      </div>
+      <div class="callout big fragment rise">Dữ liệu ít thay đổi, truy vấn rất nhiều ⇒ <span class="t-sparse">đáng để tiền xử lý một lần</span>.</div>
+    </div>
+  </div>
+  <aside class="notes">
+[1:25 – 2:30] Ba bối cảnh: chuỗi thời gian (ví dụ minh họa tự xây dựng), cây (LCA) và chuỗi (LCE). Hai bối cảnh sau là ứng dụng "thật": RMQ là thành phần trong thuật toán LCA và trong chỉ mục chuỗi (sẽ quay lại ở phần 5).
+Thông điệp: dữ liệu tĩnh + nhiều truy vấn ⇒ tiền xử lý.
+  </aside>
+</section>
+
+<section data-part="1" data-section="01 · Đặt vấn đề">
+  <div class="frame">
+    <div class="kicker">Cách ngây thơ</div>
+    <h2 class="title">Quét từng đoạn: đúng, nhưng lặp lại công việc</h2>
+    <div class="content">
+      <div class="video-card" style="max-width:1100px"><video src="media/S01_ProblemScan.mp4" poster="media/posters/S01_ProblemScan.jpg" muted playsinline preload="auto"></video></div>
+    </div>
+  </div>
+  <aside class="notes">
+[2:30 – 3:00] Video tự chạy (≈17 s). Nhấn V để tạm dừng, R để phát lại.
+Ý chính: một truy vấn đọc r − l + 1 phần tử ⇒ O(n) xấu nhất; q truy vấn ⇒ O(n·q). Với n = q = 10⁶ là khoảng 10¹² phép so sánh.
+  </aside>
+</section>
+
+<section data-part="1" data-section="01 · Đặt vấn đề">
+  <div class="frame">
+    <div class="kicker">Phát biểu bài toán</div>
+    <h2 class="title">Range Minimum Query (RMQ)</h2>
+    <div class="content">
+      <div class="cols-6040">
+        <div class="card">
+          <p><b>Đầu vào:</b> mảng \(A[1..n]\) gồm các phần tử so sánh được; \(q\) truy vấn \((l, r)\) với \(1 \le l \le r \le n\).</p>
+          <div class="formula">$$\mathrm{RMQ}_A(l,r)=\arg\min_{l\le i\le r} A[i]$$</div>
+          <p style="font-size:28px">Trả về <b>vị trí</b> (argmin); giá trị là \(A[\mathrm{RMQ}(l,r)]\). Nhiều vị trí bằng nhau → chọn <b>trái nhất</b>: so sánh cặp \((A[i], i)\).</p>
+          <div style="display:flex;justify-content:center;margin:26px 0 34px">
+            <div class="arr">
+              <div class="cell">5<i>1</i></div><div class="cell q">2<i>2</i></div><div class="cell q">6<i>3</i></div><div class="cell q">3<i>4</i></div><div class="cell ans">1<i>5</i></div><div class="cell q">7<i>6</i></div><div class="cell q">4<i>7</i></div><div class="cell">8<i>8</i></div>
+            </div>
+          </div>
+          <p style="font-size:27px;text-align:center">\(\mathrm{RMQ}(2,7)=5,\quad \mathrm{RMQ}(1,4)=2,\quad \mathrm{RMQ}(6,8)=7\)</p>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div class="card tint fragment rise" style="--c:var(--sparse)"><div class="tag">Tĩnh vs động</div><p style="font-size:26px">Mảng cố định, hay xen kẽ <b>cập nhật</b> \(A[i] \leftarrow x\)?</p></div>
+          <div class="card tint fragment rise" style="--c:var(--green)"><div class="tag">Trực tuyến vs ngoại tuyến</div><p style="font-size:26px">Trả lời ngay từng truy vấn, hay biết trước cả lô?</p></div>
+          <div class="card tint fragment rise" style="--c:var(--orange)"><div class="tag">Dạng truy vấn</div><p style="font-size:26px">Đoạn tùy ý, cửa sổ trượt cố định, hay hình chữ nhật (2D)?</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+[3:00 – 3:40] Định nghĩa chuẩn trong các paper: RMQ trả về chỉ số (argmin) — cần cho LCA và cho cấu trúc nén. Bài lập trình thường hỏi giá trị: lấy A[vị trí].
+Quy ước khi trùng giá trị: chọn vị trí trái nhất, nhất quán ở mọi bước (xây bảng, cây Cartesian, ghép đáp án).
+Ba trục biến thể quyết định cấu trúc dữ liệu — ta sẽ quay lại ở slide "chọn cấu trúc".
+  </aside>
+</section>
+
+<section data-part="1" data-section="01 · Đặt vấn đề">
+  <div class="frame">
+    <div class="kicker">Đo chi phí thế nào?</div>
+    <h2 class="title">Ký hiệu ⟨tiền xử lý, truy vấn⟩ và tổng chi phí</h2>
+    <div class="content">
+      <div class="cols-2">
+        <div class="card">
+          <h3>Ba con số cho mỗi cấu trúc</h3>
+          <p>\(P(n)\): thời gian tiền xử lý · \(Q(n)\): thời gian một truy vấn · \(S(n)\): bộ nhớ phụ.</p>
+          <div class="formula" style="margin:18px 0">$$T(q)=P(n)+q\cdot Q(n)$$</div>
+          <p class="muted" style="font-size:26px">Viết gọn \(\langle P(n), Q(n)\rangle\). Ví dụ duyệt trực tiếp là \(\langle O(1), O(n)\rangle\). Mục tiêu tối thượng: \(\langle O(n), O(1)\rangle\) — không thể tốt hơn vì phải đọc đầu vào.</p>
+        </div>
+        <div class="card fragment rise">
+          <h3>Sao không làm như prefix sum?</h3>
+          <p style="font-size:27px">Tổng: \(\mathrm{sum}(l,r)=P[r]-P[l-1]\). Phép <b>min không có phép “trừ”</b>.</p>
+          <table class="cmp" style="font-size:25px;margin-top:8px">
+            <thead><tr><th>Mảng</th><th class="num">prefix-min</th><th class="num">min A[2..2]</th></tr></thead>
+            <tbody>
+              <tr><td class="mono">X = [1, 5, 4]</td><td class="num">[1, 1, 1]</td><td class="num">5</td></tr>
+              <tr><td class="mono">Y = [1, 2, 4]</td><td class="num">[1, 1, 1]</td><td class="num">2</td></tr>
+            </tbody>
+          </table>
+          <p class="muted" style="font-size:24px;margin-top:12px">Cùng prefix-min nhưng đáp án khác ⇒ không suy ra được min đoạn từ hai giá trị prefix.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+[3:40 – 4:20] Luôn báo cáo đủ ba con số và tổng T(q) — query O(1) chưa chắc tổng nhỏ nhất (phần benchmark sẽ cho thấy).
+Câu hỏi hay gặp: "sao không dùng prefix-min?" — vì min không khả nghịch: phản ví dụ X, Y có cùng prefix-min nhưng min đoạn [2,2] khác nhau.
+  </aside>
+</section>
+
+<!-- ===================================================== 2. CƠ SỞ -->
+<section class="divider" data-part="2" data-section="02 · Cơ sở thuật toán">
+  <div class="frame">
+    <div class="stripe"></div>
+    <div class="num">02</div>
+    <h2>Cơ sở thuật toán</h2>
+    <div class="lead">Từ hai thái cực đến Sparse Table — kèm chứng minh tính đúng và phân tích.</div>
+    <div class="time">≈ 9 phút</div>
+  </div>
+  <aside class="notes">[4:20] Phần 2.</aside>
+</section>
+
+<section data-part="2" data-section="02 · Cơ sở thuật toán">
+  <div class="frame">
+    <div class="kicker">Hai thái cực</div>
+    <h2 class="title">Không tiền xử lý vs. lưu sẵn mọi đáp án</h2>
+    <div class="content">
+      <div class="cols-2">
+        <div class="card top c-scan" style="--c:var(--scan)">
+          <div class="tag">Duyệt trực tiếp</div>
+          <p><span class="pill c-scan">\(\langle O(1), O(n) \rangle\)</span> &nbsp;bộ nhớ \(O(1)\)</p>
+          <p style="font-size:27px">Mỗi truy vấn quét \(r-l+1\) phần tử.</p>
+          <p style="font-size:27px">Tổng: \(O(n\cdot q)\) — tệ khi \(q\) lớn.</p>
+          <p class="good" style="font-size:26px">+ Không tốn bộ nhớ, cập nhật \(O(1)\), tốt khi đoạn ngắn.</p>
+        </div>
+        <div class="card top" style="--c:var(--red)">
+          <div class="tag">Bảng mọi đoạn</div>
+          <p><span class="pill c-red">\(\langle O(n^{2}), O(1) \rangle\)</span> &nbsp;bộ nhớ \(O(n^{2})\)</p>
+          <div class="formula" style="font-size:30px">$$D[l][r]=\min\big(D[l][r-1],\,A[r]\big)$$</div>
+          <p style="font-size:27px">\(n(n+1)/2\) ô, mỗi ô \(O(1)\) nhờ quy hoạch động.</p>
+          <p class="bad" style="font-size:26px">− \(n=10^6\): \(5\cdot10^{11}\) ô ≈ 2 TB bộ nhớ.</p>
+        </div>
+      </div>
+      <div class="callout fragment rise">Có điểm nào ở giữa: tiền xử lý gần tuyến tính <b>và</b> truy vấn gần hằng số?</div>
+    </div>
+  </div>
+  <aside class="notes">
+[4:30 – 5:30] Hai thái cực của phổ đánh đổi. Lưu ý bảng mọi đoạn phải xây bằng quy hoạch động (mỗi ô O(1)); nếu quét lại từng đoạn sẽ thành O(n³).
+Con số 2 TB: 5·10¹¹ ô × 4 byte. Dẫn sang các phương án trung gian.
+  </aside>
+</section>
+
+<section data-part="2" data-section="02 · Cơ sở thuật toán">
+  <div class="frame">
+    <div class="kicker">Phương án trung gian 1</div>
+    <h2 class="title">Chia khối √n: tóm tắt từng khối</h2>
+    <div class="content">
+      <div class="card" style="display:flex;flex-direction:column;align-items:center;gap:26px;padding-top:30px">
+        <div style="display:flex;gap:26px">
+          <div class="arr" style="padding:8px;border:3px solid var(--sqrt);border-radius:14px"><div class="cell">7<i>1</i></div><div class="cell">4<i>2</i></div><div class="cell q">9<i>3</i></div><div class="cell q">6<i>4</i></div></div>
+          <div class="arr" style="padding:8px;border:3px solid var(--sqrt);border-radius:14px"><div class="cell q">3<i>5</i></div><div class="cell q">8<i>6</i></div><div class="cell q">5<i>7</i></div><div class="cell q">10<i>8</i></div></div>
+          <div class="arr" style="padding:8px;border:3px solid var(--sqrt);border-radius:14px"><div class="cell q">2<i>9</i></div><div class="cell q">11<i>10</i></div><div class="cell q">6<i>11</i></div><div class="cell q">9<i>12</i></div></div>
+          <div class="arr" style="padding:8px;border:3px solid var(--sqrt);border-radius:14px"><div class="cell q">5<i>13</i></div><div class="cell ans">1<i>14</i></div><div class="cell">8<i>15</i></div><div class="cell">12<i>16</i></div></div>
+        </div>
+        <div style="display:flex;gap:26px;margin-top:14px;font-size:27px;align-items:center">
+          <span class="muted">min khối:</span>
+          <span class="pill c-sqrt">4</span><span class="pill c-sqrt">3</span><span class="pill c-sqrt">2</span><span class="pill c-sqrt">1</span>
+        </div>
+        <p class="fragment rise" style="font-size:28px;text-align:center">Truy vấn [3, 14] = quét lẻ <b>[3, 4]</b> + đọc min <b>khối 2, 3</b> + quét lẻ <b>[13, 14]</b> → min(6, 3, 2, 1) = 1</p>
+      </div>
+      <div class="cols-3">
+        <div class="card tint fragment rise" style="--c:var(--sqrt)"><div class="tag">Tiền xử lý</div><p>\(O(n)\), bộ nhớ \(O(\sqrt{n})\)</p></div>
+        <div class="card tint fragment rise" style="--c:var(--sqrt)"><div class="tag">Truy vấn</div><p>≤ 2√n + √n = \(O(\sqrt{n})\)</p></div>
+        <div class="card tint fragment rise" style="--c:var(--sqrt)"><div class="tag">Cập nhật điểm</div><p>quét lại 1 khối: \(O(\sqrt{n})\)</p></div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+[5:30 – 6:10] [30′ bỏ qua] Khối kích thước b = √n. Truy vấn gồm tối đa hai mảnh lẻ (≤ 2b) và các khối trọn vẹn (≤ n/b) ⇒ O(b + n/b) nhỏ nhất khi b = √n.
+Gieo ý: "tóm tắt từng khối" sẽ quay lại ở Fischer–Heun, nhưng khi đó dùng Sparse Table cho tầng trên và khối nhỏ cỡ log n.
+  </aside>
+</section>
+
+<section data-part="2" data-section="02 · Cơ sở thuật toán">
+  <div class="frame">
+    <div class="kicker">Phương án trung gian 2</div>
+    <h2 class="title">Segment Tree: chia đôi đệ quy, hỗ trợ cập nhật</h2>
+    <div class="content">
+      <div class="cols-7030">
+        <div class="video-card"><video src="media/S04_SegmentTree.mp4" poster="media/posters/S04_SegmentTree.jpg" muted playsinline preload="auto"></video></div>
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <span class="pill c-seg" style="align-self:flex-start">\(\langle O(n), O(\log n) \rangle\)</span>
+          <div class="card tint" style="--c:var(--seg)"><div class="tag">Truy vấn</div><p style="font-size:26px">Mỗi tầng chọn ≤ 2 nút ⇒ ≤ 2⌈log₂ n⌉ nút.</p></div>
+          <div class="card tint" style="--c:var(--seg)"><div class="tag">Cập nhật điểm</div><p style="font-size:26px">Sửa lá + các tổ tiên: \(O(\log n)\).</p></div>
+          <div class="card tint" style="--c:var(--seg)"><div class="tag">Bộ nhớ</div><p style="font-size:26px">2n ô (bản lặp, bottom-up).</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+[6:10 – 7:00] Video ≈20 s: xây từ dưới lên, truy vấn [2, 7] tách thành 4 nút [2], [3,4], [5,6], [7] → min(2,3,1,4) = 1; cập nhật A[5] := 9 sửa đường lên gốc.
+Segment Tree là lựa chọn mặc định khi có cập nhật. Dynamic RMQ có cận dưới Θ(log n / log log n) mỗi thao tác (sẽ nói ở phần 4), nên O(log n) đã rất gần tối ưu.
+  </aside>
+</section>
+
+<section data-part="2" data-section="02 · Cơ sở thuật toán">
+  <div class="frame">
+    <div class="kicker">Ý tưởng then chốt</div>
+    <h2 class="title">Sparse Table: chỉ lưu các đoạn dài lũy thừa của 2</h2>
+    <div class="content">
+      <div class="cols-7030">
+        <div class="video-card"><video src="media/S02_SparseBuild.mp4" poster="media/posters/S02_SparseBuild.jpg" muted playsinline preload="auto"></video></div>
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div class="card">
+            <p style="font-size:26px">\(st[k][i]\) = min của đoạn dài \(2^k\) bắt đầu tại \(i\):</p>
+            <div style="font-size:25px">$$\begin{aligned} st[0][i] &= A[i]\\ st[k][i] &= \min\big(st[k-1][i],\\ &\qquad\ \ st[k-1][i+2^{k-1}]\big)\end{aligned}$$</div>
+          </div>
+          <div class="card tint fragment rise" style="--c:var(--sparse)"><div class="tag">Số ô</div><p style="font-size:26px">\(\sum_{k=0}^{\lfloor\log_2 n\rfloor}(n-2^k+1)=\Theta(n\log n)\)</p></div>
+          <div class="card tint fragment rise" style="--c:var(--sparse)"><div class="tag">Xây bảng</div><p style="font-size:26px">Mỗi ô \(O(1)\) ⇒ \(\Theta(n\log n)\) thời gian và bộ nhớ.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+[7:00 – 8:00] Thay vì lưu n² đoạn, chỉ lưu các đoạn có độ dài 1, 2, 4, 8, … Mỗi đoạn dài 2^k là hợp của hai đoạn dài 2^(k−1) ⇒ quy hoạch động theo k.
+Video ≈19 s chạy đúng mảng ví dụ. Số ô: hàng k có n − 2^k + 1 ô, tổng Θ(n log n).
+  </aside>
+</section>
+
+<section data-part="2" data-section="02 · Cơ sở thuật toán">
+  <div class="frame">
+    <div class="kicker">Truy vấn \(O(1)\)</div>
+    <h2 class="title">Hai đoạn chồng lấn phủ kín [l, r]</h2>
+    <div class="content">
+      <div class="cols-7030">
+        <div class="video-card"><video src="media/S03_SparseQuery.mp4" poster="media/posters/S03_SparseQuery.jpg" muted playsinline preload="auto"></video></div>
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div class="card" style="font-size:25px">
+            $$k=\lfloor\log_2(r-l+1)\rfloor$$
+            $$\min\big(st[k][l],\ st[k][r-2^k+1]\big)$$
+          </div>
+          <div class="card tint fragment rise" style="--c:var(--green)"><div class="tag">Vì sao đúng?</div><p style="font-size:25px"><b>Lũy đẳng</b>: \(\min(x,x)=x\) — phần giao bị xét 2 lần vẫn không đổi kết quả.</p></div>
+          <div class="card tint fragment rise" style="--c:var(--red)"><div class="tag">Không dùng được cho</div><p style="font-size:25px">tổng, XOR, tích: phần giao bị tính 2 lần ⇒ cần Disjoint Sparse Table hoặc prefix.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+[8:00 – 9:10] Video ≈17 s. Với L = 6 thì k = 2, hai đoạn [2,5] và [4,7] chồng lên [4,5]. Đây là chỗ nhiều nhóm hay nói lướt: tính đúng dựa trên tính LŨY ĐẲNG (idempotent) cùng tính kết hợp của min.
+Dùng được: min, max, gcd, AND, OR. Không dùng được: tổng (10 + 18 = 28 ≠ 21), XOR, nhân ma trận.
+  </aside>
+</section>
+
+<section data-part="2" data-section="02 · Cơ sở thuật toán">
+  <div class="frame">
+    <div class="kicker">Chứng minh &amp; phân tích</div>
+    <h2 class="title">Tính đúng, thời gian và bộ nhớ của Sparse Table</h2>
+    <div class="content">
+      <div class="cols-2">
+        <div class="card">
+          <h3>Bổ đề phủ</h3>
+          <p style="font-size:27px">Đặt \(L=r-l+1\), \(k=\lfloor\log_2 L\rfloor\) ⇒ \(2^k\le L\lt 2^{k+1}\).</p>
+          <ul style="font-size:26px">
+            <li>Cả hai đoạn \([l,\,l+2^k-1]\) và \([r-2^k+1,\,r]\) nằm trong \([l,r]\) vì \(2^k\le L\).</li>
+            <li>Hợp của chúng là \([l,r]\) vì \(2\cdot 2^k\gt L\) ⇒ không để hở.</li>
+            <li>min có tính kết hợp + lũy đẳng ⇒ min(min đoạn 1, min đoạn 2) = min \([l,r]\). ∎</li>
+          </ul>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div class="card tint fragment rise" style="--c:var(--sparse)"><div class="tag">Thời gian</div>
+            <p style="font-size:26px">Xây \(\Theta(n\log n)\); truy vấn \(O(1)\) nếu \(\lfloor\log_2\rfloor\) là \(O(1)\): bảng <code>lg[]</code> \(O(n)\) hoặc lệnh <code>__builtin_clz</code>.</p></div>
+          <div class="card tint fragment rise" style="--c:var(--sparse)"><div class="tag">Bộ nhớ</div>
+            <p style="font-size:26px">\(\Theta(n\log n)\) word. \(n=10^6\), int 32 bit: 20 tầng × 4 MB ≈ <b>80 MB</b>.</p></div>
+          <div class="card tint fragment rise" style="--c:var(--sparse)"><div class="tag">Tổng cho q truy vấn</div>
+            <p style="font-size:26px">\(T(q)=O(n\log n+q)\). Cần argmin: lưu chỉ số, so sánh \((A[i],i)\).</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+[9:10 – 10:30] Chứng minh ngắn gọn, đủ chặt: hai đoạn nằm trong [l, r] và hợp của chúng không để hở vì 2·2^k > L.
+Phân tích: O(1) truy vấn chỉ đúng khi tính ⌊log₂⌋ trong O(1) — đừng dùng log2() số thực (lỗi làm tròn).
+Bộ nhớ là điểm yếu: 80 MB ở n = 10⁶ — động lực cho phần tối ưu.
+  </aside>
+</section>
+
+<section data-part="2" data-section="02 · Cơ sở thuật toán">
+  <div class="frame">
+    <div class="kicker">Cài đặt</div>
+    <h2 class="title">Sparse Table trong C++17 — 15 dòng</h2>
+    <div class="content">
+      <div class="cols-7030">
+<pre><code class="language-cpp" data-trim data-noescape data-line-numbers="1-3|4-10|11-14">
+struct SparseTable {                    // RMQ tĩnh: &lt;O(n log n), O(1)&gt;
+    vector&lt;vector&lt;int&gt;&gt; st;
+    SparseTable(const vector&lt;int&gt;&amp; a) {
+        int n = a.size(), K = __lg(n) + 1;
+        st.assign(K, vector&lt;int&gt;(n));
+        st[0] = a;                      // k = 0: đoạn dài 1
+        for (int k = 1; k &lt; K; ++k)
+            for (int i = 0; i + (1 &lt;&lt; k) &lt;= n; ++i)
+                st[k][i] = min(st[k-1][i], st[k-1][i + (1 &lt;&lt; (k-1))]);
+    }
+    int query(int l, int r) const {     // đoạn đóng [l, r], 0-based
+        int k = __lg(r - l + 1);        // ⌊log2 L⌋ bằng lệnh đếm bit
+        return min(st[k][l], st[k][r - (1 &lt;&lt; k) + 1]);
+    }
+};
+</code></pre>
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div class="card tint" style="--c:var(--sparse)"><div class="tag">Dòng 4–10</div><p style="font-size:25px">Quy hoạch động theo k: hàng k dùng hàng k − 1.</p></div>
+          <div class="card tint" style="--c:var(--sparse)"><div class="tag">Dòng 11–14</div><p style="font-size:25px"><code>__lg</code> = vị trí bit cao nhất ⇒ \(O(1)\), không dùng số thực.</p></div>
+          <div class="card tint" style="--c:var(--green)"><div class="tag">Đã kiểm thử</div><p style="font-size:25px">Mã trên slide đã biên dịch và đối chiếu với duyệt trên 32 triệu đoạn.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+[10:30 – 11:30] Nhấn → để tô từng khối dòng: (1) cấu trúc, (2) xây bảng, (3) truy vấn.
+__lg(x) của GCC = 31 − __builtin_clz(x). Mã trên được biên dịch và kiểm thử trong thư mục seminar/benchmark (self-test đối chiếu mọi đoạn).
+  </aside>
+</section>
+
+<!-- ===================================================== 3. ÁP DỤNG -->
+<section class="divider" data-part="3" data-section="03 · Áp dụng giải bài toán">
+  <div class="frame">
+    <div class="stripe"></div>
+    <div class="num">03</div>
+    <h2>Áp dụng giải bài toán</h2>
+    <div class="lead">Chạy tay trên ví dụ, giải bài thi đấu, và chọn cấu trúc theo điều kiện đề bài.</div>
+    <div class="time">≈ 6 phút</div>
+  </div>
+  <aside class="notes">[11:30] Phần 3.</aside>
+</section>
+
+<section data-part="3" data-section="03 · Áp dụng giải bài toán">
+  <div class="frame">
+    <div class="kicker">Demo tương tác</div>
+    <h2 class="title">Sparse Table Explorer — chọn l, r hoặc bấm một ô</h2>
+    <div class="content">
+      <div class="widget" data-widget="sparse" style="display:grid;grid-template-columns:1.75fr 1fr;gap:30px;align-items:start">
+        <div>
+          <div class="st-grid"></div>
+          <div class="ctrl" style="margin-top:24px;flex-wrap:wrap">
+            <span>l</span><input type="range" min="1" value="2" data-l><span class="v" data-lv>2</span>
+            <span style="margin-left:18px">r</span><input type="range" min="1" value="7" data-r><span class="v" data-rv>7</span>
+            <button class="btn" data-example style="margin-left:auto">Mảng ví dụ</button>
+            <button class="btn" data-random>Ngẫu nhiên</button>
+          </div>
+        </div>
+        <div class="st-info"></div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+[11:40 – 13:00] Demo trực tiếp (chạy offline). Kéo thanh l, r: hàng A tô xanh dương đoạn 1, cam đoạn 2, tím phần giao; hai ô viền đậm trong hàng k là hai ô được tra; ô xanh lá là vị trí min.
+Gợi ý: (2,7) → k = 2; thử (1,12) → k = 3, giao lớn; thử l = r → k = 0. Bấm một ô của bảng để xem đoạn mà ô đó đại diện. Sau khi kéo thanh trượt, bấm ra ngoài để phím mũi tên chuyển slide trở lại.
+  </aside>
+</section>
+
+<section data-part="3" data-section="03 · Áp dụng giải bài toán">
+  <div class="frame">
+    <div class="kicker">Bài toán mẫu</div>
+    <h2 class="title">CSES 1647 · Static Range Minimum Queries</h2>
+    <div class="content">
+      <div class="cols-2">
+        <div class="card">
+          <div class="tag" style="color:var(--green)">Đề bài (tóm tắt)</div>
+          <p style="font-size:27px">\(n, q \le 2\cdot10^5\); mỗi truy vấn \((a,b)\) in min của đoạn \([a,b]\). Không có cập nhật.</p>
+          <table class="cmp" style="font-size:25px;margin-top:10px">
+            <thead><tr><th>Cách</th><th class="num">Số phép toán (xấu nhất)</th><th class="num">Kết quả</th></tr></thead>
+            <tbody>
+              <tr><td>Duyệt</td><td class="num">n·q = 4·10¹⁰</td><td class="num bad">TLE</td></tr>
+              <tr><td>Segment Tree</td><td class="num">n + q·2log n ≈ 7·10⁶</td><td class="num good">AC</td></tr>
+              <tr class="hl" style="--c:var(--sparse)"><td><b>Sparse Table</b></td><td class="num">n log n + 2q ≈ 4·10⁶</td><td class="num good">AC</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:16px">
+<pre><code class="language-cpp" data-trim data-noescape>
+int main() {
+    int n, q; scanf("%d %d", &amp;n, &amp;q);
+    vector&lt;int&gt; a(n);
+    for (int&amp; x : a) scanf("%d", &amp;x);
+    SparseTable t(a);
+    while (q--) {
+        int l, r; scanf("%d %d", &amp;l, &amp;r);
+        printf("%d\n", t.query(l - 1, r - 1));
+    }
+}
+</code></pre>
+          <div class="card tint fragment rise" style="--c:var(--seg)"><div class="tag">Đổi đề: CSES 1649 (có cập nhật điểm)</div><p style="font-size:25px">Sparse Table phải xây lại \(O(n \log n)\) mỗi lần ⇒ chuyển sang <b>Segment Tree</b> \(O(\log n)\)/thao tác.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+[13:00 – 14:10] Áp dụng trực tiếp: đọc mảng, xây bảng, trả lời. Đổi chỉ số 1-based của đề sang 0-based.
+Biến thể cùng họ: VNOJ NKLINEUP (max − min trên đoạn) → hai Sparse Table cho max và min.
+Thông điệp: thay đổi một điều kiện (có cập nhật) làm đổi hẳn cấu trúc phù hợp.
+  </aside>
+</section>
+
+<section data-part="3" data-section="03 · Áp dụng giải bài toán">
+  <div class="frame">
+    <div class="kicker">Chọn cấu trúc theo điều kiện bài toán</div>
+    <h2 class="title">Sáu câu hỏi trước khi chọn cấu trúc dữ liệu</h2>
+    <div class="content">
+      <div class="decision">
+        <div class="q fragment rise" data-fragment-index="1"><span class="qi">1</span>Có cập nhật xen kẽ truy vấn?</div>
+        <div class="a fragment rise" data-fragment-index="1" style="--c:var(--seg)"><span class="arrow">→</span><span><b>Segment Tree</b> (lazy nếu cập nhật đoạn) · Fenwick 2 cây</span></div>
+        <div class="q fragment rise" data-fragment-index="2"><span class="qi">2</span>Truy vấn là cửa sổ trượt độ dài cố định?</div>
+        <div class="a fragment rise" data-fragment-index="2" style="--c:var(--linear)"><span class="arrow">→</span><span><b>Deque đơn điệu</b>: \(O(n)\) cho mọi cửa sổ</span></div>
+        <div class="q fragment rise" data-fragment-index="3"><span class="qi">3</span>Biết trước cả lô, và q ≪ n?</div>
+        <div class="a fragment rise" data-fragment-index="3" style="--c:var(--green)"><span class="arrow">→</span><span><b>Offline</b>: DSU (Arpa) hoặc co mảng (Alzamel et al.)</span></div>
+        <div class="q fragment rise" data-fragment-index="4"><span class="qi">4</span>Rất ít truy vấn, hoặc đoạn rất ngắn?</div>
+        <div class="a fragment rise" data-fragment-index="4" style="--c:var(--scan)"><span class="arrow">→</span><span><b>Duyệt trực tiếp</b>: không tốn build</span></div>
+        <div class="q fragment rise" data-fragment-index="5"><span class="qi">5</span>n rất lớn, bộ nhớ hạn chế?</div>
+        <div class="a fragment rise" data-fragment-index="5" style="--c:var(--linear)"><span class="arrow">→</span><span><b>RMQ tuyến tính</b> (bitmask) · succinct \(2n + o(n)\) bit</span></div>
+        <div class="q fragment rise" data-fragment-index="6"><span class="qi">6</span>Còn lại: tĩnh, nhiều truy vấn tùy ý</div>
+        <div class="a fragment rise" data-fragment-index="6" style="--c:var(--sparse)"><span class="arrow">→</span><span><b>Sparse Table</b>: đơn giản, \(O(1)\)</span></div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+[14:10 – 15:20] Đi lần lượt 6 câu hỏi. Đây là phần "so sánh với CTDL khác theo điều kiện" mà nhiều nhóm bỏ sót.
+Câu 1: dynamic → Segment Tree (Dima & Ceterchi 2015 có biến thể hai cây Fenwick giải được RMQ động — đừng nói tuyệt đối "Fenwick không làm được min").
+Câu 2: cửa sổ trượt là trường hợp đặc biệt có lời giải O(n) riêng (sẽ có video ở phần 5).
+Câu 3: offline — backup slide.
+Câu 4–6: phụ thuộc số truy vấn, độ dài đoạn, bộ nhớ — chính là các trục benchmark ở phần 4.
+  </aside>
+</section>
+
+<section data-part="3" data-section="03 · Áp dụng giải bài toán">
+  <div class="frame">
+    <div class="kicker">So sánh với các cấu trúc dữ liệu khác</div>
+    <h2 class="title">Bảng tổng hợp: thời gian, cập nhật, bộ nhớ, phép toán</h2>
+    <div class="content">
+      <table class="cmp" style="font-size:25px">
+        <thead><tr><th>Cấu trúc</th><th class="num">Tiền xử lý</th><th class="num">Truy vấn</th><th class="num">Cập nhật điểm</th><th class="num">Bộ nhớ phụ</th><th>Phép toán</th></tr></thead>
+        <tbody>
+          <tr><td><span class="dot" style="--c:var(--scan)"></span>Duyệt trực tiếp</td><td class="num">—</td><td class="num">\(O(n)\)</td><td class="num">\(O(1)\)</td><td class="num">\(O(1)\)</td><td>mọi phép</td></tr>
+          <tr><td><span class="dot" style="--c:var(--red)"></span>Bảng mọi đoạn</td><td class="num">\(O(n^{2})\)</td><td class="num">\(O(1)\)</td><td class="num">\(O(n^{2})\)</td><td class="num">\(O(n^{2})\)</td><td>kết hợp</td></tr>
+          <tr><td><span class="dot" style="--c:var(--sqrt)"></span>Chia khối √n</td><td class="num">\(O(n)\)</td><td class="num">\(O(\sqrt{n})\)</td><td class="num">\(O(\sqrt{n})\)</td><td class="num">\(O(\sqrt{n})\)</td><td>kết hợp</td></tr>
+          <tr><td><span class="dot" style="--c:var(--seg)"></span>Segment Tree</td><td class="num">\(O(n)\)</td><td class="num">\(O(\log n)\)</td><td class="num">\(O(\log n)\)</td><td class="num">\(O(n)\)</td><td>kết hợp (monoid)</td></tr>
+          <tr><td><span class="dot" style="--c:var(--orange)"></span>Fenwick 2 cây <small>(Dima–Ceterchi 2015)</small></td><td class="num">\(O(n)\)</td><td class="num">\(O(\log n)\)</td><td class="num">\(O(\log n)\)*</td><td class="num">\(O(n)\)</td><td>min / max</td></tr>
+          <tr class="hl" style="--c:var(--sparse)"><td><span class="dot" style="--c:var(--sparse)"></span><b>Sparse Table</b></td><td class="num">\(O(n \log n)\)</td><td class="num">\(O(1)\)</td><td class="num">xây lại</td><td class="num">\(O(n \log n)\)</td><td>lũy đẳng</td></tr>
+          <tr><td><span class="dot" style="--c:var(--blue)"></span>Disjoint Sparse Table</td><td class="num">\(O(n \log n)\)</td><td class="num">\(O(1)\)</td><td class="num">—</td><td class="num">\(O(n \log n)\)</td><td>kết hợp</td></tr>
+          <tr class="hl" style="--c:var(--linear)"><td><span class="dot" style="--c:var(--linear)"></span><b>Fischer–Heun / bitmask</b></td><td class="num">\(O(n)\)</td><td class="num">\(O(1)\)</td><td class="num">—</td><td class="num">\(O(n)\)</td><td>min / max</td></tr>
+          <tr><td><span class="dot" style="--c:var(--green)"></span>Succinct <small>(Fischer–Heun 2011)</small></td><td class="num">\(O(n)\)</td><td class="num">\(O(1)\)</td><td class="num">—</td><td class="num">\(2n + o(n)\) bit</td><td>argmin</td></tr>
+        </tbody>
+      </table>
+      <p class="source">* trung bình (amortized) theo tác giả. Bộ nhớ tính bằng word (trừ dòng cuối). Disjoint Sparse Table dùng các đoạn không giao nhau nên đúng cho mọi phép kết hợp (tổng, tích ma trận…).</p>
+    </div>
+  </div>
+  <aside class="notes">
+[15:20 – 16:30] Đọc theo cột: không có dòng nào thắng mọi cột. Sparse Table: O(1) nhưng tốn n log n và không cập nhật. Fischer–Heun/bitmask: tối ưu cả tiền xử lý lẫn truy vấn — nội dung của phần 4.
+Lưu ý thuật ngữ: "bộ nhớ O(n)" là O(n) word = O(n log n) bit; dòng cuối mới thực sự tính bằng bit.
+  </aside>
+</section>
+
+<!-- ===================================================== 4. TỐI ƯU -->
+<section class="divider" data-part="4" data-section="04 · Tối ưu &amp; độ phức tạp">
+  <div class="frame">
+    <div class="stripe"></div>
+    <div class="num">04</div>
+    <h2>Tối ưu hóa &amp; phân tích độ phức tạp</h2>
+    <div class="lead">Bỏ thừa số log n: chia khối, cây Cartesian, Fischer–Heun, bitmask — rồi kiểm chứng bằng đo đạc.</div>
+    <div class="time">≈ 14 phút</div>
+  </div>
+  <aside class="notes">[16:30] Phần 4 — phần trọng tâm về phân tích.</aside>
+</section>
+
+<section data-part="4" data-section="04 · Tối ưu &amp; độ phức tạp">
+  <div class="frame">
+    <div class="kicker">Mục tiêu</div>
+    <h2 class="title">Có đạt được \(\langle O(n), O(1) \rangle\) không?</h2>
+    <div class="content">
+      <div class="cols-fig">
+        <div class="fig-card"><img src="figures/theory_tradeoff.svg" alt="Phổ đánh đổi tiền xử lý và truy vấn"></div>
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div class="card tint" style="--c:var(--ink)"><div class="tag" style="color:var(--ink)">Không thể tốt hơn</div><p style="font-size:25px">Phải đọc đủ n phần tử: \(\Omega(n)\). Mỗi truy vấn: \(\Omega(1)\).</p></div>
+          <div class="card tint fragment rise" style="--c:var(--sparse)"><div class="tag">Sparse Table thừa gì?</div><p style="font-size:25px">Một thừa số <b>log n</b> ở tiền xử lý và bộ nhớ.</p></div>
+          <div class="card tint fragment rise" style="--c:var(--linear)"><div class="tag">Chiến lược</div><p style="font-size:25px">Chỉ dùng Sparse Table cho <b>n / log n</b> phần tử đại diện — phần còn lại xử lý bằng bảng tra nhỏ.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+[16:40 – 17:30] Biểu đồ mô hình (bỏ hằng số) tại n = 10⁶: trục x chi phí tiền xử lý, trục y chi phí một truy vấn. Góc dưới-trái là lý tưởng. Mũi tên: từ Sparse Table sang ⟨O(n), O(1)⟩.
+Mẹo kinh điển: (n / log n) · log(n / log n) = O(n) ⇒ Sparse Table trên n / log n phần tử chỉ tốn O(n).
+  </aside>
+</section>
+
+<section data-part="4" data-section="04 · Tối ưu &amp; độ phức tạp">
+  <div class="frame">
+    <div class="kicker">Bước 1 · Chia khối hai tầng</div>
+    <h2 class="title">Tầng trên: Sparse Table trên min của các khối</h2>
+    <div class="content">
+      <div class="cols-7030">
+        <div class="video-card"><video src="media/S05_BlockDecomposition.mp4" poster="media/posters/S05_BlockDecomposition.jpg" muted playsinline preload="auto"></video></div>
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div class="card"><p style="font-size:25px">Khối kích thước \(b=\Theta(\log n)\) ⇒ \(n/b\) khối:</p>
+            <div style="font-size:25px">$$\tfrac{n}{b}\log\tfrac{n}{b}\ \le\ \tfrac{n}{b}\log n = O(n)$$</div></div>
+          <div class="card tint fragment rise" style="--c:var(--linear)"><div class="tag">Truy vấn</div><p style="font-size:25px">hậu tố khối trái + Sparse Table giữa + tiền tố khối phải: 3 ứng viên.</p></div>
+          <div class="card tint fragment rise" style="--c:var(--red)"><div class="tag">Còn thiếu</div><p style="font-size:25px">Truy vấn <b>trong một khối</b> trong \(O(1)\)?</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+[17:30 – 18:20] Video ≈15 s. Truy vấn [3, 14] = hậu tố khối 1 (min 6) + khối 2–3 qua Sparse Table (min 2) + tiền tố khối 4 (min 1) ⇒ 1.
+Tầng trên đã O(n). Nút thắt: các truy vấn nằm trong một khối (hoặc phần hậu tố/tiền tố) phải O(1) mà không tốn n log n.
+  </aside>
+</section>
+
+<section data-part="4" data-section="04 · Tối ưu &amp; độ phức tạp">
+  <div class="frame">
+    <div class="kicker">Bước 2 · Cây Cartesian</div>
+    <h2 class="title">Đáp án RMQ chỉ phụ thuộc “hình dạng” của mảng</h2>
+    <div class="content">
+      <div class="cols-7030">
+        <div class="video-card"><video src="media/S06_CartesianTree.mp4" poster="media/posters/S06_CartesianTree.jpg" muted playsinline preload="auto"></video></div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="card tint" style="--c:var(--linear)"><div class="tag">Định nghĩa (Vuillemin 1980)</div><p style="font-size:24px">Gốc = min; cây con trái/phải dựng đệ quy. Duyệt giữa = thứ tự chỉ số; cha nhỏ hơn con.</p></div>
+          <div class="card tint fragment rise" style="--c:var(--green)"><div class="tag">RMQ ≡ LCA</div><p style="font-size:24px">\(\mathrm{RMQ}(l,r)=\mathrm{LCA}(l,r)\) trong cây Cartesian (Gabow–Bentley–Tarjan 1984).</p></div>
+          <div class="card tint fragment rise" style="--c:var(--sparse)"><div class="tag">Xây \(O(n)\)</div><p style="font-size:24px">Ngăn xếp = nhánh phải; mỗi phần tử push/pop ≤ 1 lần.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+[18:20 – 19:40] Video ≈34 s: dựng cây bằng ngăn xếp, rồi minh họa RMQ(3,7) = LCA = vị trí 5 và RMQ(1,4) = vị trí 2.
+Ý then chốt: RMQ chỉ quan tâm thứ tự tương đối ⇒ mọi thông tin cần thiết nằm trong hình dạng cây Cartesian.
+Lịch sử chính xác: ⟨O(n), O(1)⟩ đầu tiên là Gabow–Bentley–Tarjan (STOC 1984): quy RMQ về LCA trên cây Cartesian + LCA O(1) của Harel–Tarjan (1984).
+  </aside>
+</section>
+
+<section data-part="4" data-section="04 · Tối ưu &amp; độ phức tạp">
+  <div class="frame">
+    <div class="kicker">Bước 3 · Fischer &amp; Heun (CPM 2006)</div>
+    <h2 class="title">Khối cùng hình dạng cây ⇒ dùng chung bảng tra</h2>
+    <div class="content">
+      <div class="cols-7030">
+        <div class="video-card"><video src="media/S07_SameShapeBlocks.mp4" poster="media/posters/S07_SameShapeBlocks.jpg" muted playsinline preload="auto"></video></div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="card tint" style="--c:var(--linear)"><div class="tag">Quan sát</div><p style="font-size:24px">Hai khối cùng hình dạng cây Cartesian có <b>cùng</b> bảng argmin cho mọi (l, r).</p></div>
+          <div class="card tint fragment rise" style="--c:var(--linear)"><div class="tag">Đếm loại khối</div><p style="font-size:24px">Số hình dạng = số Catalan \(C_b \le 4^b/b^{3/2}\) ≪ \(b!\).</p></div>
+          <div class="card tint fragment rise" style="--c:var(--green)"><div class="tag">Chọn \(b=\tfrac14\log_2 n\)</div><p style="font-size:24px">\(4^b=\sqrt n\) loại; mỗi bảng \(b^2\) ô ⇒ \(O(\sqrt n\log^2 n)=o(n)\).</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+[19:40 – 20:50] Video ≈19 s. Hai khối [5,2,6,3] và [9,1,7,4] giá trị khác nhau nhưng cùng hình dạng cây ⇒ bảng argmin giống hệt.
+Không phân loại theo hoán vị (b! loại) mà theo hình dạng cây (Catalan, ≤ 4^b). Loại khối tính trong O(b) bằng ngăn xếp/số ballot (Fischer & Heun).
+  </aside>
+</section>
+
+<section data-part="4" data-section="04 · Tối ưu &amp; độ phức tạp">
+  <div class="frame">
+    <div class="kicker">Phân tích độ phức tạp</div>
+    <h2 class="title">Fischer–Heun đạt \(\langle O(n), O(1) \rangle\) — tính chi tiết</h2>
+    <div class="content">
+      <div class="card" style="font-size:30px">
+        $$P(n)=\underbrace{O(n)}_{\text{min khối, loại khối}}+\underbrace{O\!\left(\tfrac{n}{b}\log\tfrac{n}{b}\right)}_{\text{Sparse Table tầng trên}}+\underbrace{O\!\left(4^{b}\,b^{2}\right)}_{\text{bảng trong khối}}$$
+        <div class="fragment rise">$$b=\tfrac14\log_2 n\ \Rightarrow\ \tfrac{n}{b}\log n=4n,\qquad 4^{b}b^{2}=\sqrt n\cdot\tfrac{\log^2 n}{16}=o(n)\ \Rightarrow\ P(n)=O(n)$$</div>
+      </div>
+      <div class="cols-3">
+        <div class="card tint fragment rise" style="--c:var(--linear)"><div class="tag">Truy vấn</div><p style="font-size:25px">≤ 2 lần tra bảng trong khối + 2 ô Sparse Table + 3 phép so sánh ⇒ <b>\(O(1)\)</b>.</p></div>
+        <div class="card tint fragment rise" style="--c:var(--linear)"><div class="tag">Bộ nhớ</div><p style="font-size:25px">\(O(n)\) word: loại của n/b khối + tầng trên \(O(n)\) + bảng \(o(n)\).</p></div>
+        <div class="card tint fragment rise" style="--c:var(--red)"><div class="tag">Cái giá</div><p style="font-size:25px">Hằng số lớn, cài đặt phức tạp ⇒ thực tế dùng biến thể đơn giản hơn.</p></div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+[20:50 – 22:00] Ba thành phần chi phí; với b = ¼·log₂ n: 4^b = √n nên bảng trong khối chỉ o(n); tầng trên (n/b)·log n = 4n.
+Kết luận: tiền xử lý O(n), truy vấn O(1), bộ nhớ O(n) word — tối ưu tiệm cận. Nhưng "tối ưu tiệm cận" ≠ "nhanh nhất trên máy thật" → phần benchmark.
+  </aside>
+</section>
+
+<section data-part="4" data-section="04 · Tối ưu &amp; độ phức tạp">
+  <div class="frame">
+    <div class="kicker">Chiều ngược lại · LCA → RMQ</div>
+    <h2 class="title">Euler tour biến LCA thành ±1 RMQ</h2>
+    <div class="content">
+      <div class="cols-7030">
+        <div class="video-card"><video src="media/S09_EulerTourLCA.mp4" poster="media/posters/S09_EulerTourLCA.jpg" muted playsinline preload="auto"></video></div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="card"><p style="font-size:25px">\(\mathrm{LCA}(u,v)=E\big[\arg\min D[\mathit{first}_u..\mathit{first}_v]\big]\)</p></div>
+          <div class="card tint fragment rise" style="--c:var(--orange)"><div class="tag">±1 RMQ</div><p style="font-size:24px">D kề nhau chênh ±1 ⇒ khối ½ log n chỉ có \(2^{b-1}=O(\sqrt n)\) kiểu.</p></div>
+          <div class="card tint fragment rise" style="--c:var(--sparse)"><div class="tag">Ghi công đúng</div><p style="font-size:24px">Berkman–Vishkin et al. (1989–93); Bender &amp; Farach-Colton (2000) trình bày lại đơn giản.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+[22:00 – 23:00] Video ≈27 s. Euler tour dài 2n − 1; LCA(4,5) = E[4] = 2; LCA(5,6) = E[7] = 1.
+RMQ ↔ LCA là quy dẫn hai chiều, tuyến tính. Bender & Farach-Colton tự nói họ không đề xuất thuật toán mới — đó là bản tuần tự hóa của thuật toán PRAM nhóm Berkman–Vishkin. Fischer & Heun 2006 giải trực tiếp RMQ tổng quát, không cần đi qua LCA.
+  </aside>
+</section>
+
+<section data-part="4" data-section="04 · Tối ưu &amp; độ phức tạp">
+  <div class="frame">
+    <div class="kicker">Bản thực dụng · RMQ tuyến tính bằng bitmask</div>
+    <h2 class="title">Khối = 1 từ máy 64 bit, truy vấn trong khối = 1 lệnh ctz</h2>
+    <div class="content">
+      <div class="cols-7030">
+        <div class="video-card"><video src="media/S08_BitmaskRMQ.mp4" poster="media/posters/S08_BitmaskRMQ.jpg" muted playsinline preload="auto"></video></div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="card tint" style="--c:var(--linear)"><div class="tag">mask[r]</div><p style="font-size:24px">Bit j = 1 ⇔ vị trí j còn trong ngăn xếp đơn điệu sau khi xét r (≡ nhánh phải cây Cartesian).</p></div>
+          <div class="card tint fragment rise" style="--c:var(--linear)"><div class="tag">Độ phức tạp</div><p style="font-size:24px">\(O(n)\) mask + \(\tfrac{n}{64}\log\tfrac{n}{64}\) ô Sparse Table; truy vấn \(O(1)\).</p></div>
+          <div class="card tint fragment rise" style="--c:var(--muted)"><div class="tag" style="color:var(--muted)">Nguồn gốc</div><p style="font-size:22px">Kỹ thuật cộng đồng thi đấu: jcg (2019), brunomont (Codeforces blog 78931, 2020). Gần với block sparse table của Kowalski &amp; Grabowski (2018).</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+[23:00 – 24:20] Video ≈37 s (có thể tăng tốc bằng phím ]). Cùng ý tưởng hai tầng như Fischer–Heun nhưng phần trong khối thay bảng tra Catalan bằng mặt nạ bit: mask[r] chính là nhánh phải (ngăn xếp) của cây Cartesian của tiền tố khối.
+Truy vấn (l, r) trong khối: bỏ các bit &lt; l rồi lấy bit 1 thấp nhất. Mô hình word-RAM: w ≥ log n, nên khối 64 phần tử ứng với b = Θ(log n).
+Trung thực về nguồn: không có paper bình duyệt mô tả đúng kỹ thuật mask này — nguồn là blog Codeforces.
+  </aside>
+</section>
+
+<section data-part="4" data-section="04 · Tối ưu &amp; độ phức tạp">
+  <div class="frame">
+    <div class="kicker">Cài đặt RMQ tuyến tính</div>
+    <h2 class="title">Phần lõi: dựng mask và truy vấn trong khối</h2>
+    <div class="content">
+      <div class="cols-7030">
+<pre><code class="language-cpp" data-trim data-noescape data-line-numbers="1-9|10-13|14-20">
+for (int s = 0; s &lt; n; s += 64) {          // từng khối 64 phần tử
+    uint64_t cur = 0;                        // ngăn xếp đơn điệu = bitmask
+    for (int i = s; i &lt; min(n, s + 64); ++i) {
+        while (cur &amp;&amp; a[s + 63 - __builtin_clzll(cur)] &gt; a[i])
+            cur ^= 1ULL &lt;&lt; (63 - __builtin_clzll(cur));   // pop đỉnh
+        cur |= 1ULL &lt;&lt; (i - s);                          // push i
+        mask[i] = cur;
+    }
+}
+int inBlock(int l, int r) {                  // l, r cùng khối
+    uint64_t m = mask[r] &amp; (~0ULL &lt;&lt; (l &amp; 63)); // bỏ bit &lt; l
+    return a[(l &amp; ~63) + __builtin_ctzll(m)];    // bit 1 thấp nhất
+}
+int query(int l, int r) {
+    int bl = l &gt;&gt; 6, br = r &gt;&gt; 6;
+    if (bl == br) return inBlock(l, r);
+    int ans = min(inBlock(l, bl * 64 + 63), inBlock(br * 64, r));
+    if (bl + 1 &lt; br) ans = min(ans, top.query(bl + 1, br - 1));
+    return ans;                              // top = Sparse Table trên min khối
+}
+</code></pre>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="card tint" style="--c:var(--linear)"><div class="tag">Tie-break</div><p style="font-size:24px">Chỉ pop khi <b>&gt;</b> (không ≥) ⇒ trả về vị trí trái nhất.</p></div>
+          <div class="card tint" style="--c:var(--linear)"><div class="tag">Vì sao đúng?</div><p style="font-size:24px">Vị trí min trái nhất p của [l, r] không bị pop bởi phần tử nào trong (p, r]; mọi phần tử còn lại trong [l, p) sẽ ≤ A[p] — mâu thuẫn.</p></div>
+          <div class="card tint" style="--c:var(--green)"><div class="tag">Đã kiểm thử</div><p style="font-size:24px">Mã trên slide đã đối chiếu với duyệt trên 32 triệu đoạn.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+[24:20 – 25:10] [30′ bỏ qua] Ba khối dòng: dựng mask O(n) khấu hao; truy vấn trong khối là một AND + một ctz; truy vấn tổng quát ghép 3 ứng viên.
+Chứng minh tính đúng (cột phải) — đủ chặt để trả lời phản biện. Đây chính là cài đặt "Linear" trong benchmark.
+  </aside>
+</section>
+
+<section data-part="4" data-section="04 · Tối ưu &amp; độ phức tạp">
+  <div class="frame">
+    <div class="kicker">Giới hạn dưới &amp; bộ nhớ nén</div>
+    <h2 class="title">Cần ít nhất bao nhiêu bit? Có nhanh hơn được không?</h2>
+    <div class="content">
+      <div class="cols-2">
+        <div class="card top" style="--c:var(--linear)">
+          <div class="tag">Không giữ mảng A (encoding)</div>
+          <p style="font-size:26px">Từ các câu trả lời RMQ dựng lại được cây Cartesian ⇒ cần ≥ \(\log_2 C_n = 2n-\Theta(\log n)\) bit.</p>
+          <p style="font-size:26px" class="fragment rise">Đạt được: <b>\(2n + o(n)\) bit</b>, \(O(1)\) — Fischer (LATIN 2010) / Fischer &amp; Heun (SICOMP 2011). Trước đó: Sadakane \(4n + o(n)\) (2007).</p>
+          <p style="font-size:24px" class="muted fragment rise">Cell-probe: thời gian t ⇒ cần \(2n+n/(\log n)^{\tilde O(t^2)}\) bit (Liu &amp; Yu, STOC 2020).</p>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div class="card top fragment rise" style="--c:var(--sparse)">
+            <div class="tag">Được đọc A (indexing)</div>
+            <p style="font-size:25px">Thêm \(O(n/c)\) bit ⇒ truy vấn \(\Omega(c)\), và đạt được (Brodal–Davoodi–Rao 2010/12).</p>
+          </div>
+          <div class="card top fragment rise" style="--c:var(--seg)">
+            <div class="tag">RMQ động</div>
+            <p style="font-size:25px">\(\Theta(\log n / \log \log n)\) mỗi thao tác (Alstrup–Husfeldt–Rauhe 1998; Brodal–Davoodi–Rao 2011) ⇒ Segment Tree gần tối ưu.</p>
+          </div>
+          <div class="callout fragment rise" style="--c:var(--red);font-size:24px">“\(O(n)\) bộ nhớ” = \(O(n)\) <b>word</b> = \(O(n \log n)\) bit — khác 2n bit.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+[25:10 – 26:30] Ba mô hình, ba loại cận dưới:
+(1) Encoding: không truy cập A khi truy vấn. Số hình dạng cây = Catalan ≈ 4ⁿ/n^1.5 ⇒ cần 2n − Θ(log n) bit; đạt 2n + o(n). Lưu ý: bài ESCAPE 2007 từng tuyên bố cận dưới 2n − o(n) cho mô hình có A — đã bị chính tác giả rút lại.
+(2) Indexing: có A, chỉ thêm n/c bit thì phải trả giá Ω(c) thời gian — chặt.
+(3) Động: Θ(log n / log log n) (từ bài toán marked ancestor). Đừng trích Pătraşcu–Demaine Ω(log n) cho min — đó là cho phép cộng trên nhóm.
+  </aside>
+</section>
+
+<section data-part="4" data-section="04 · Tối ưu &amp; độ phức tạp">
+  <div class="frame">
+    <div class="kicker">Lịch sử · 45 năm của một bài toán “đơn giản”</div>
+    <h2 class="title">Các mốc chính (đã kiểm chứng nguồn)</h2>
+    <div class="content">
+      <div class="timeline">
+        <div class="ev fragment rise" style="--c:var(--p1)"><div class="yr">1980</div><div class="dot"></div><div class="who">Vuillemin</div><div class="what">Cây Cartesian (CACM)</div></div>
+        <div class="ev fragment rise" style="--c:var(--p2)"><div class="yr">1984</div><div class="dot"></div><div class="who">Gabow–Bentley–Tarjan · Harel–Tarjan</div><div class="what">RMQ → LCA; LCA \(O(1)\)</div><div class="res">\(\langle O(n), O(1) \rangle\) đầu tiên</div></div>
+        <div class="ev fragment rise" style="--c:var(--p2)"><div class="yr">1989–93</div><div class="dot"></div><div class="who">Berkman–Vishkin et al.</div><div class="what">Euler tour → ±1 RMQ, thuật toán song song</div></div>
+        <div class="ev fragment rise" style="--c:var(--p3)"><div class="yr">2000</div><div class="dot"></div><div class="who">Bender &amp; Farach-Colton</div><div class="what">Trình bày lại đơn giản: Sparse Table + khối</div></div>
+        <div class="ev fragment rise" style="--c:var(--p4)"><div class="yr">2006–11</div><div class="dot"></div><div class="who">Fischer &amp; Heun</div><div class="what">RMQ trực tiếp; succinct \(2n + o(n)\) bit</div><div class="res">tối ưu bit</div></div>
+        <div class="ev fragment rise" style="--c:var(--p5)"><div class="yr">2017–26</div><div class="dot"></div><div class="who">Thực nghiệm &amp; phần cứng</div><div class="what">Ferrada–Navarro, Baumstark et al. (2017); Liu–Yu cận dưới (2020); RTXRMQ GPU (2024)</div></div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+[26:30 – 27:20] [30′ rút gọn: chỉ nói 1984, 2000, 2006–11] Đính chính phổ biến: Bender & Farach-Colton KHÔNG phải người đầu tiên đạt ⟨O(n), O(1)⟩ — đó là Gabow–Bentley–Tarjan 1984 (dựa trên LCA của Harel–Tarjan). Encoding 2n + o(n) bit không truy cập A đầu tiên là Fischer, LATIN 2010 (bản tạp chí SICOMP 2011).
+2026: hướng mới là GPU (GPU-RMQ, arXiv 2026) và RMQ 2D dạng mã hóa (ESA 2026).
+  </aside>
+</section>
+
+<section data-part="4" data-section="04 · Tối ưu &amp; độ phức tạp">
+  <div class="frame">
+    <div class="kicker">Phân tích tổng thể · n = 2²⁰ ≈ 10⁶</div>
+    <h2 class="title">Thời gian và bộ nhớ: lý thuyết đặt cạnh số đo</h2>
+    <div class="content">
+      <table class="cmp" style="font-size:25px">
+        <thead><tr><th>Cấu trúc</th><th class="num">\(\langle P, Q \rangle\)</th><th class="num">Bộ nhớ phụ (đo)</th><th class="num">Build (đo)</th><th class="num">ns / truy vấn (đo)</th><th class="num">T(q = 10⁶) đo</th></tr></thead>
+        <tbody>
+          <tr><td><span class="dot" style="--c:var(--scan)"></span>Duyệt trực tiếp</td><td class="num">\(\langle 1, n \rangle\)</td><td class="num">0</td><td class="num">0</td><td class="num">21 402</td><td class="num">≈ 21 s*</td></tr>
+          <tr><td><span class="dot" style="--c:var(--sqrt)"></span>Chia khối √n</td><td class="num">\(\langle n, \sqrt{n} \rangle\)</td><td class="num">4 KiB</td><td class="num">1,4 ms</td><td class="num">107</td><td class="num">108 ms</td></tr>
+          <tr><td><span class="dot" style="--c:var(--seg)"></span>Segment Tree</td><td class="num">\(\langle n, \log n \rangle\)</td><td class="num">8,0 MiB</td><td class="num">1,1 ms</td><td class="num">101</td><td class="num">107 ms</td></tr>
+          <tr class="hl" style="--c:var(--linear)"><td><span class="dot" style="--c:var(--linear)"></span><b>RMQ tuyến tính</b></td><td class="num">\(\langle n, 1 \rangle\)</td><td class="num">8,8 MiB</td><td class="num">8,0 ms</td><td class="num">18,2</td><td class="num"><b>26 ms</b></td></tr>
+          <tr><td><span class="dot" style="--c:var(--sparse)"></span>Sparse Table</td><td class="num">\(\langle n \log n, 1 \rangle\)</td><td class="num">76 MiB</td><td class="num">31 ms</td><td class="num">9,8</td><td class="num">41 ms</td></tr>
+        </tbody>
+      </table>
+      <div class="cols-2">
+        <div class="callout fragment rise" style="--c:var(--sparse);font-size:26px">Sparse Table: truy vấn nhanh nhất nhưng tốn <b>8,6×</b> bộ nhớ và <b>3,9×</b> thời gian build so với RMQ tuyến tính.</div>
+        <div class="callout fragment rise" style="--c:var(--linear);font-size:26px">Ở q = 10⁶, RMQ tuyến tính thắng về <b>tổng</b> thời gian — đúng như lý thuyết dự đoán.</div>
+      </div>
+      <p class="source">Số đo tự chạy (i5-13500HX, GCC 15.3 -O3, median 5 lần). * ước lượng P + q·Q từ số đo, không chạy trực tiếp.</p>
+    </div>
+  </div>
+  <aside class="notes">
+[27:20 – 28:20] Nối lý thuyết với thực tế bằng số đo ở n = 2²⁰. Bộ nhớ: Sparse Table 76 byte/phần tử — có ⌊log₂n⌋ + 1 = 21 tầng nhưng chỉ lưu ô hợp lệ, tổng ≈ 19n ô × 4 byte; RMQ tuyến tính ≈ 8,8 byte/phần tử (mask 64 bit + bảng Sparse Table nhỏ trên min các khối).
+Chuyển sang phần benchmark chi tiết.
+  </aside>
+</section>
+
+<section data-part="4" data-section="04 · Tối ưu &amp; độ phức tạp">
+  <div class="frame">
+    <div class="kicker">Benchmark tự đo · Phương pháp</div>
+    <h2 class="title">Đo thế nào để kết luận có căn cứ?</h2>
+    <div class="content">
+      <div class="cols-3">
+        <div class="card top" style="--c:var(--sparse)"><div class="tag">Môi trường</div>
+          <ul style="font-size:24px"><li>Intel i5-13500HX, ghim 1 P-core</li><li>GCC 15.3, <code>-O3 -march=native</code></li><li>L3 24 MiB, RAM 15 GiB</li><li>Laptop, governor powersave</li></ul></div>
+        <div class="card top" style="--c:var(--linear)"><div class="tag">Thiết kế thí nghiệm</div>
+          <ul style="font-size:24px"><li>5 cấu trúc, cùng dữ liệu &amp; truy vấn</li><li>Quét n: 2¹⁰ → 2²³</li><li>Quét độ dài đoạn L, số truy vấn q, tỉ lệ cập nhật</li><li>5 lần, median + IQR, đảo thứ tự chạy</li></ul></div>
+        <div class="card top" style="--c:var(--green)"><div class="tag">Tính đúng</div>
+          <ul style="font-size:24px"><li>Self-test: 36,4 triệu phép đối chiếu với duyệt</li><li>Checksum mọi lượt đo khớp nhau</li><li>Bộ nhớ = payload mảng phụ (không phải RSS)</li><li>Mã + CSV kèm theo để tái lập</li></ul></div>
+      </div>
+      <div class="callout" style="font-size:26px">Đây là <b>microbenchmark</b> trên một máy: so sánh xu hướng, không phải bảng xếp hạng tuyệt đối. Không trộn với số liệu trong paper.</div>
+    </div>
+  </div>
+  <aside class="notes">
+[28:20 – 29:00] Nêu rõ phạm vi để giảng viên tin số liệu: cùng dữ liệu, ghim CPU, median + IQR, kiểm tra tính đúng trước khi đo, checksum chống trình biên dịch loại bỏ code.
+Hạn chế: laptop, không cô lập CPU hoàn toàn; ns/truy vấn là thông lượng (các truy vấn độc lập nối tiếp nhau, CPU có thể chồng lấp độ trễ bộ nhớ).
+  </aside>
+</section>
+
+<section data-part="4" data-section="04 · Tối ưu &amp; độ phức tạp">
+  <div class="frame">
+    <div class="kicker">Benchmark tự đo · Truy vấn theo n</div>
+    <h2 class="title">Big-O dự đoán đúng xu hướng — bộ nhớ đệm quyết định hằng số</h2>
+    <div class="content">
+      <div class="cols-fig">
+        <div class="fig-card"><img src="figures/bench_query_vs_n.svg" alt="ns mỗi truy vấn theo n"></div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="card tint fragment rise" style="--c:var(--sparse)"><p style="font-size:24px">Sparse Table: 1 ns → 14 ns; nhảy bậc khi bảng <b>vượt L3</b> (n ≈ 2¹⁹).</p></div>
+          <div class="card tint fragment rise" style="--c:var(--linear)"><p style="font-size:24px">RMQ tuyến tính: \(O(1)\) nhưng 2 lần truy cập phụ thuộc nhau (mask → A) ⇒ chậm hơn ~2–3×.</p></div>
+          <div class="card tint fragment rise" style="--c:var(--seg)"><p style="font-size:24px">n ≤ 2¹²: duyệt thẳng nhanh hơn Segment Tree (SIMD, không rẽ nhánh).</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+[29:00 – 29:50] Thang log hai trục; dải mờ là IQR. Ba nhận xét:
+1) Sparse Table nhanh nhất về truy vấn, nhưng nhảy bậc khi bảng không còn nằm trong L3 (24 MiB) — tác động của phân cấp bộ nhớ, không có trong Big-O.
+2) Bitmask O(1) nhưng hằng số lớn hơn: truy cập mask[r] rồi mới truy cập A ở vị trí phụ thuộc.
+3) Với n nhỏ, duyệt tuyến tính vector hóa rất nhanh. Nhận xét về cache là giải thích khả dĩ — chưa đo bằng hardware counter.
+  </aside>
+</section>
+
+<section data-part="4" data-section="04 · Tối ưu &amp; độ phức tạp">
+  <div class="frame">
+    <div class="kicker">Benchmark tự đo · Tiền xử lý &amp; bộ nhớ</div>
+    <h2 class="title">Cái giá của \(O(1)\): thời gian xây và bộ nhớ</h2>
+    <div class="content">
+      <div class="fig-card grow"><img src="figures/bench_build_memory.svg" alt="Thời gian xây và bộ nhớ phụ" style="max-height:560px"></div>
+      <p class="fragment rise" style="font-size:26px;text-align:center">n = 2²³: Sparse Table build <b>297 ms</b>, 88 byte/phần tử · RMQ tuyến tính <b>77 ms</b>, 9 byte/phần tử · Segment Tree 22 ms, 8 byte/phần tử.</p>
+    </div>
+  </div>
+  <aside class="notes">
+[29:50 – 30:30] [30′ bỏ qua] (a) Thời gian build: Sparse Table tăng theo n log n và nhảy ở 2¹⁹ (bảng vượt L3, page fault). RMQ tuyến tính build chậm hơn Segment Tree vì vòng pop của ngăn xếp rẽ nhánh khó đoán trên dữ liệu ngẫu nhiên.
+(b) Bộ nhớ: Sparse Table 4·(⌊log₂n⌋+1) byte/phần tử, tăng tuyến tính theo log n; các cấu trúc tuyến tính gần như hằng.
+  </aside>
+</section>
+
+<section data-part="4" data-section="04 · Tối ưu &amp; độ phức tạp">
+  <div class="frame">
+    <div class="kicker">Benchmark tự đo · Độ dài đoạn</div>
+    <h2 class="title">Đoạn ngắn: duyệt thẳng thắng mọi cấu trúc</h2>
+    <div class="content">
+      <div class="cols-fig">
+        <div class="fig-card"><img src="figures/bench_query_length.svg" alt="ns mỗi truy vấn theo độ dài đoạn"></div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="card tint fragment rise" style="--c:var(--scan)"><p style="font-size:24px">L ≤ 128: duyệt ≈ 6–18 ns, không cần tiền xử lý.</p></div>
+          <div class="card tint fragment rise" style="--c:var(--sparse)"><p style="font-size:24px">Sparse Table phẳng ≈ 8–10 ns với mọi L — đúng nghĩa \(O(1)\).</p></div>
+          <div class="card tint fragment rise" style="--c:var(--seg)"><p style="font-size:24px">Segment Tree tăng theo log L (8 → 92 ns).</p></div>
+          <div class="card tint fragment rise" style="--c:var(--red)"><p style="font-size:23px">Không dùng kết quả này để phủ nhận \(O(n)\) xấu nhất của duyệt.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+[30:30 – 31:10] [30′ bỏ qua] n cố định 2²² ≈ 4,2 triệu, thay độ dài đoạn. Workload quyết định: nếu bài toán chỉ hỏi đoạn ngắn (vd. cửa sổ nhỏ), duyệt là lựa chọn hợp lý. Segment Tree tăng theo log L vì số nút phải ghép tỉ lệ với log độ dài đoạn.
+  </aside>
+</section>
+
+<section data-part="4" data-section="04 · Tối ưu &amp; độ phức tạp">
+  <div class="frame">
+    <div class="kicker">Benchmark tự đo · Điểm hòa vốn</div>
+    <h2 class="title">Query \(O(1)\) chưa chắc tổng thời gian nhỏ nhất</h2>
+    <div class="content">
+      <div class="cols-fig">
+        <div class="fig-card"><img src="figures/bench_breakeven.svg" alt="Tổng thời gian theo số truy vấn"></div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="card"><p style="font-size:24px">Mô hình \(T(q)\approx p+q\,t\) ⇒</p><div style="font-size:26px">$$q^*=\frac{p_A-p_B}{t_B-t_A}$$</div></div>
+          <div class="card tint fragment rise" style="--c:var(--seg)"><p style="font-size:23px">q ≲ 8·10⁴: Segment Tree / chia khối (build rẻ).</p></div>
+          <div class="card tint fragment rise" style="--c:var(--linear)"><p style="font-size:23px">8·10⁴ ≲ q ≲ 2,8·10⁶: RMQ tuyến tính.</p></div>
+          <div class="card tint fragment rise" style="--c:var(--sparse)"><p style="font-size:23px">q ≳ 2,8·10⁶: Sparse Table bù được chi phí build.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+[31:10 – 32:00] n = 2²⁰. Đường nằm ngang = chi phí build; độ dốc = chi phí mỗi truy vấn. q* tính từ median build và ns/truy vấn — hai điểm cắt đo trực tiếp khớp mô hình (ở q = 10⁵ Linear 11,0 ms ≈ Segment 11,4 ms; ở 10⁷ Sparse 130 ms &lt; Linear 193 ms).
+Kết luận: lựa chọn phụ thuộc q — không thể đọc từ Big-O.
+  </aside>
+</section>
+
+<section data-part="4" data-section="04 · Tối ưu &amp; độ phức tạp">
+  <div class="frame">
+    <div class="kicker">Demo tương tác · Số đo thật, n = 2²⁰</div>
+    <h2 class="title">Kéo q và xem cấu trúc nào thắng</h2>
+    <div class="content">
+      <div class="widget" data-widget="breakeven">
+        <div class="ctrl" style="margin-bottom:18px">
+          <span>Số truy vấn q =</span><span class="v" data-q style="min-width:90px">10³</span>
+          <input type="range" min="0" value="3" step="1" style="width:560px">
+          <span class="muted" style="font-size:21px;margin-left:auto">thanh sọc = ước lượng p + q·t (không đo vì quá chậm) · trục log</span>
+        </div>
+        <div class="be-rows"></div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+[32:00 – 32:40] [30′ bỏ qua] Kéo từ q = 1 đến 10⁷ để khán giả thấy "người thắng" đổi từ duyệt → Segment Tree → RMQ tuyến tính → Sparse Table. Số liệu nhúng từ CSV benchmark (results_summary_all.csv).
+  </aside>
+</section>
+
+<section data-part="4" data-section="04 · Tối ưu &amp; độ phức tạp">
+  <div class="frame">
+    <div class="kicker">Benchmark tự đo · Có cập nhật</div>
+    <h2 class="title">Có cập nhật: cấu trúc tĩnh bị loại, Segment Tree lên ngôi</h2>
+    <div class="content">
+      <div class="cols-fig">
+        <div class="fig-card"><img src="figures/bench_mixed.svg" alt="Thời gian theo tỉ lệ cập nhật"></div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="card tint fragment rise" style="--c:var(--sqrt)"><p style="font-size:24px">Ít cập nhật: chia khối nhanh hơn (quét liên tục, SIMD).</p></div>
+          <div class="card tint fragment rise" style="--c:var(--seg)"><p style="font-size:24px">≳ 67% cập nhật: Segment Tree thắng — cập nhật \(O(\log n)\) so với quét lại khối \(O(\sqrt{n})\).</p></div>
+          <div class="card tint fragment rise" style="--c:var(--red)"><p style="font-size:23px">Sparse Table / RMQ tuyến tính: mỗi cập nhật phải xây lại ⇒ không đưa vào.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+[32:40 – 33:20] n = 2¹⁷, 131 072 thao tác, thay tỉ lệ gán điểm 0 → 99%. Kết quả này nhất quán với số đo trước đó của nhóm trên máy khác (EPYC): Segment Tree vượt chia khối khi cập nhật chiếm đa số.
+Scan giảm thời gian khi tỉ lệ cập nhật tăng chỉ vì ít truy vấn hơn, không phải vì nó nhanh lên.
+  </aside>
+</section>
+
+<section data-part="4" data-section="04 · Tối ưu &amp; độ phức tạp">
+  <div class="frame">
+    <div class="kicker">Đối chiếu số liệu đã công bố</div>
+    <h2 class="title">Nghiên cứu khác đo được gì? (số của tác giả, máy của họ)</h2>
+    <div class="content">
+      <table class="cmp tight" style="font-size:22px">
+        <thead><tr><th>Nguồn</th><th>Thiết lập</th><th>Kết quả chính</th></tr></thead>
+        <tbody>
+          <tr><td><b>brunomont</b> 2020 <small>· Codeforces</small></td><td>khối 64, 10⁶ truy vấn</td><td>n = 10⁶: bitmask 44 ns · Sparse Table 18 · Sqrt Tree 51 · Segment Tree 138 ns. Build n = 10⁷: 140 vs 515 ms</td></tr>
+          <tr><td><b>Kowalski &amp; Grabowski</b> 2018</td><td>n = 10⁹, i7-4790</td><td>Block Sparse Table: build 0,6 s, 34,6 bit/phần tử (gồm A) · Sparse Table đầy đủ: 436,6 s, 404,9 bit · SDSL: 23,9 s, 2,54 bit</td></tr>
+          <tr><td><b>Ferrada &amp; Navarro</b> 2017</td><td>n = 10⁴…10¹⁰</td><td>≈ 2,1 bit/phần tử, 1–3 µs/truy vấn; nhanh hơn SDSL 3–6×</td></tr>
+          <tr><td><b>Baumstark et al.</b> 2017</td><td>Xeon E5-4640</td><td>≈ 2,16 bit/phần tử; truy vấn nhanh hơn tới 3× so với cài đặt trước</td></tr>
+          <tr><td><b>Dima &amp; Ceterchi</b> 2015</td><td>n = 10⁵, 10⁷ thao tác</td><td>Fenwick 2 cây: truy vấn 0,551 s vs Segment Tree 2,397 s; cập nhật 0,672 vs 1,274 s</td></tr>
+          <tr><td><b>RTXRMQ</b> 2024 <small>· GPU</small></td><td>GPU RTX 6000 Ada</td><td>≈ 5 ns/RMQ (đoạn lớn, lô 2²⁶); tới 5× so với CPU 192 nhân</td></tr>
+        </tbody>
+      </table>
+      <p class="source">Xu hướng khớp số đo của nhóm: Sparse Table truy vấn nhanh nhất; bitmask/block build nhanh, nhỏ hơn nhiều.</p>
+    </div>
+  </div>
+  <aside class="notes">
+[33:20 – 34:00] [30′ bỏ qua] Chỉ đối chiếu XU HƯỚNG, không ghép số vào cùng bảng xếp hạng (khác máy, năm, cài đặt). Dima & Ceterchi tuyên bố nhanh hơn Sparse Table trong abstract nhưng thực tế không đo Sparse Table — cần nói rõ khi bị hỏi.
+  </aside>
+</section>
+
+<section data-part="4" data-section="04 · Tối ưu &amp; độ phức tạp">
+  <div class="frame">
+    <div class="kicker">Bài học từ benchmark</div>
+    <h2 class="title">Bốn kết luận có căn cứ</h2>
+    <div class="content">
+      <div class="cols-2">
+        <div class="card top fragment rise" style="--c:var(--sparse)"><h3>1 · Query \(O(1)\) ≠ tổng nhanh nhất</h3><p style="font-size:26px">Luôn tính \(T(q)=P+qQ\); điểm hòa vốn phụ thuộc q.</p></div>
+        <div class="card top fragment rise" style="--c:var(--linear)"><h3>2 · Bộ nhớ là chi phí thật</h3><p style="font-size:26px">Sparse Table 76–88 byte/phần tử ⇒ rơi khỏi cache, build chậm.</p></div>
+        <div class="card top fragment rise" style="--c:var(--scan)"><h3>3 · Workload đổi người thắng</h3><p style="font-size:26px">Đoạn ngắn → duyệt; nhiều cập nhật → Segment Tree.</p></div>
+        <div class="card top fragment rise" style="--c:var(--green)"><h3>4 · Big-O cho xu hướng, đo cho quyết định</h3><p style="font-size:26px">Hằng số, cache, rẽ nhánh, SIMD không có trong Big-O.</p></div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">[34:00 – 34:30] Tóm tắt phần 4, chuyển sang ứng dụng.</aside>
+</section>
+
+<!-- ===================================================== 5. ỨNG DỤNG -->
+<section class="divider" data-part="5" data-section="05 · Ứng dụng &amp; bài tập">
+  <div class="frame">
+    <div class="stripe"></div>
+    <div class="num">05</div>
+    <h2>Ứng dụng thực tiễn &amp; bài tập</h2>
+    <div class="lead">RMQ là “viên gạch” bên trong LCA, chỉ mục chuỗi, truy hồi tài liệu, xử lý ảnh…</div>
+    <div class="time">≈ 6 phút</div>
+  </div>
+  <aside class="notes">[34:30] Phần 5.</aside>
+</section>
+
+<section data-part="5" data-section="05 · Ứng dụng &amp; bài tập">
+  <div class="frame">
+    <div class="kicker">Mở rộng thuật toán</div>
+    <h2 class="title">Khi bài toán thay đổi một chút</h2>
+    <div class="content">
+      <div class="cols-3">
+        <div class="card top fragment rise" style="--c:var(--seg)"><div class="tag">Cập nhật đoạn</div><p style="font-size:24px">Lazy Segment Tree: cộng/gán cả đoạn, \(O(\log n)\). <span class="muted">Ví dụ: +3 vào [2,5] ⇒ min[2,7] = 4.</span></p></div>
+        <div class="card top fragment rise" style="--c:var(--linear)"><div class="tag">Cửa sổ trượt</div><p style="font-size:24px">Deque đơn điệu \(O(n)\); bộ lọc min/max ảnh (van Herk / Gil–Werman), streaming (Lemire 2006).</p></div>
+        <div class="card top fragment rise" style="--c:var(--green)"><div class="tag">Ngoại tuyến</div><p style="font-size:24px">Arpa’s trick (DSU) \(O((n+q)\cdot \alpha (n))\); lô nhỏ q ≪ n: co mảng còn \(O(q)\) (Alzamel et al. 2017).</p></div>
+        <div class="card top fragment rise" style="--c:var(--orange)"><div class="tag">RMQ 2D</div><p style="font-size:24px">Sparse Table 2D: 4 hình chữ nhật chồng lấn. Không có “cây Cartesian 2D” (Demaine–Landau–Weimann).</p></div>
+        <div class="card top fragment rise" style="--c:var(--blue)"><div class="tag">Phép toán khác</div><p style="font-size:24px">Disjoint Sparse Table / Sqrt Tree: \(O(1)\) cho mọi phép kết hợp (tổng, tích ma trận…).</p></div>
+        <div class="card top fragment rise" style="--c:var(--sparse)"><div class="tag">Song song &amp; GPU</div><p style="font-size:24px">Berkman–Vishkin (PRAM); RTXRMQ dùng nhân ray tracing (2024); GPU-RMQ (2026).</p></div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+[34:40 – 35:30] [30′ rút gọn] Sáu hướng mở rộng — chi tiết lazy, 2D, offline, Disjoint Sparse Table nằm ở phụ lục để trả lời câu hỏi.
+2D: indexing đã gần như giải xong (Brodal–Davoodi–Rao: O(N) bit, O(1)); encoding thì không có cấu trúc kiểu cây Cartesian — số mẫu đáp án quá lớn.
+  </aside>
+</section>
+
+<section data-part="5" data-section="05 · Ứng dụng &amp; bài tập">
+  <div class="frame">
+    <div class="kicker">Trường hợp đặc biệt · cửa sổ trượt</div>
+    <h2 class="title">Min của mọi cửa sổ độ dài k trong \(O(n)\)</h2>
+    <div class="content">
+      <div class="cols-7030">
+        <div class="video-card"><video src="media/S10_SlidingWindow.mp4" poster="media/posters/S10_SlidingWindow.jpg" muted playsinline preload="auto"></video></div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="card tint" style="--c:var(--linear)"><div class="tag">Ý tưởng</div><p style="font-size:24px">Deque chỉ số, giá trị tăng dần; bỏ cuối khi lớn hơn phần tử mới, bỏ đầu khi hết hạn.</p></div>
+          <div class="card tint fragment rise" style="--c:var(--green)"><div class="tag">So sánh</div><p style="font-size:24px">Deque \(O(n)\) tổng, \(O(k)\) bộ nhớ — nhưng không trả lời được đoạn tùy ý về sau như Sparse Table.</p></div>
+          <div class="card tint fragment rise" style="--c:var(--orange)"><div class="tag">Ứng dụng</div><p style="font-size:24px">Lọc min/max ảnh (erosion), giám sát chuỗi thời gian.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+[35:30 – 36:10] Video ≈22 s; kết quả 2, 2, 1, 1, 1, 4. Đây là "họ hàng" của RMQ: cùng câu hỏi min trên đoạn nhưng các đoạn trượt có thứ tự ⇒ có lời giải O(n) riêng. Bài tập: VNOJ MINK, LeetCode 239.
+  </aside>
+</section>
+
+<section data-part="5" data-section="05 · Ứng dụng &amp; bài tập">
+  <div class="frame">
+    <div class="kicker">Ứng dụng 1 · Cây</div>
+    <h2 class="title">LCA và khoảng cách trên cây: so sánh các lời giải</h2>
+    <div class="content">
+      <table class="cmp" style="font-size:25px">
+        <thead><tr><th>Phương pháp</th><th class="num">Tiền xử lý</th><th class="num">Mỗi LCA</th><th class="num">Bộ nhớ</th><th>Khi nào có lợi</th></tr></thead>
+        <tbody>
+          <tr><td>Leo cha, cân bằng độ sâu</td><td class="num">\(O(n)\)</td><td class="num">\(O(h)\)</td><td class="num">\(O(n)\)</td><td>rất ít truy vấn</td></tr>
+          <tr><td>Binary lifting</td><td class="num">\(O(n \log n)\)</td><td class="num">\(O(\log n)\)</td><td class="num">\(O(n \log n)\)</td><td>cần thêm tổ tiên thứ k, gộp min/max trên đường</td></tr>
+          <tr class="hl" style="--c:var(--sparse)"><td><b>Euler tour + Sparse Table</b></td><td class="num">\(O(n \log n)\)</td><td class="num">\(O(1)\)</td><td class="num">\(O(n \log n)\)</td><td>rất nhiều LCA trên cây tĩnh</td></tr>
+          <tr class="hl" style="--c:var(--linear)"><td><b>Euler tour + ±1 RMQ</b></td><td class="num">\(O(n)\)</td><td class="num">\(O(1)\)</td><td class="num">\(O(n)\)</td><td>tối ưu tiệm cận (Bender–Farach-Colton)</td></tr>
+        </tbody>
+      </table>
+      <div class="cols-2">
+        <div class="card tint fragment rise" style="--c:var(--sparse)"><div class="tag">Khoảng cách</div><p style="font-size:25px">\(\mathrm{dist}(u,v)=d_u+d_v-2\,d_{\mathrm{LCA}(u,v)}\) — CSES 1135, 1688.</p></div>
+        <div class="card tint fragment rise" style="--c:var(--green)"><div class="tag">Sinh học tính toán</div><p style="font-size:24px">Ánh xạ LCA cây gen → cây loài để suy ra sự kiện nhân đôi gen (Zmasek &amp; Eddy, Bioinformatics 2001).</p></div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+[36:10 – 36:50] So sánh lời giải, không chỉ một cách. Binary lifting thuận tiện hơn khi cần tổ tiên thứ k hoặc gộp thông tin dọc đường; Euler + RMQ cho O(1) mỗi truy vấn.
+Ứng dụng thật: suy luận nhân đôi gen dùng LCA-mapping (Zmasek & Eddy 2001) — họ cần một "oracle LCA"; Euler + RMQ là cách cài đặt chuẩn.
+  </aside>
+</section>
+
+<section data-part="5" data-section="05 · Ứng dụng &amp; bài tập">
+  <div class="frame">
+    <div class="kicker">Ứng dụng 2 · Xử lý chuỗi &amp; tin sinh học</div>
+    <h2 class="title">Suffix array + LCP + RMQ = LCE trong \(O(1)\)</h2>
+    <div class="content">
+      <div class="cols-7030">
+        <div class="video-card"><video src="media/S11_LCPBanana.mp4" poster="media/posters/S11_LCPBanana.jpg" muted playsinline preload="auto"></video></div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="card" style="font-size:25px">$$\mathrm{LCE}(i,j)=\min_{\mathrm{rank}_i\lt t\le \mathrm{rank}_j}\mathrm{LCP}[t]$$</div>
+          <div class="card tint fragment rise" style="--c:var(--orange)"><div class="tag">Dùng ở đâu</div><p style="font-size:23px">So khớp k sai khác (Landau–Vishkin); cây hậu tố nén (CST++, SDSL <code>cst_sct3</code>: <code>lca</code> gọi <code>rmq</code>).</p></div>
+          <div class="card tint fragment rise" style="--c:var(--red)"><div class="tag">Lưu ý</div><p style="font-size:23px">\(O(1)\) là SAU khi đã xây SA, LCP, RMQ. So trực tiếp có thể nhanh hơn khi chuỗi khác nhau sớm (Ilie–Navarro–Tinta 2010).</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+[36:50 – 37:40] Video ≈24 s: SA của "banana" = [6,4,2,1,5,3], LCP = [0,1,3,0,0,2]. LCE(2,4) = 3 ("ana"), LCE(1,3) = 0.
+Phản biện thực nghiệm: Ilie, Navarro & Tinta đo LCE qua RMQ ≈ 1,3–1,6 µs/cặp, so trực tiếp từng ký tự 0,07–0,31 µs trên dữ liệu của họ — lại là bài học "đo theo workload".
+  </aside>
+</section>
+
+<section data-part="5" data-section="05 · Ứng dụng &amp; bài tập">
+  <div class="frame">
+    <div class="kicker">Ứng dụng 3 · Truy hồi tài liệu</div>
+    <h2 class="title">Liệt kê tài liệu chứa mẫu P (Muthukrishnan 2002)</h2>
+    <div class="content">
+      <div class="cols-2">
+        <div class="card">
+          <ul style="font-size:25px">
+            <li>Các lần xuất hiện của P = một khoảng \([sp, ep]\) trên suffix array của cả tập tài liệu.</li>
+            <li>\(C[i]\): tài liệu chứa hậu tố thứ \(i\); \(L[i]\): vị trí trước đó cùng tài liệu (0 nếu chưa có).</li>
+            <li class="fragment rise">\(p=\mathrm{RMQ}_L(i,j)\). Nếu \(L[p]\lt sp\): báo \(C[p]\) (lần đầu xuất hiện), đệ quy hai bên; ngược lại dừng.</li>
+            <li class="fragment rise">Mỗi tài liệu báo đúng 1 lần ⇒ \(O(m+\mathit{docc})\), không phụ thuộc số lần xuất hiện.</li>
+          </ul>
+        </div>
+        <div class="card fragment rise">
+          <div class="tag" style="color:var(--orange)">Ví dụ (sp = 1)</div>
+          <table class="cmp" style="font-size:26px">
+            <thead><tr><th>i</th><th class="num">1</th><th class="num">2</th><th class="num">3</th><th class="num">4</th><th class="num">5</th><th class="num">6</th></tr></thead>
+            <tbody>
+              <tr><td>C</td><td class="num">2</td><td class="num">1</td><td class="num">2</td><td class="num">3</td><td class="num">1</td><td class="num">3</td></tr>
+              <tr><td>L</td><td class="num good">0</td><td class="num good">0</td><td class="num">1</td><td class="num good">0</td><td class="num">2</td><td class="num">4</td></tr>
+            </tbody>
+          </table>
+          <p style="font-size:24px;margin-top:14px">RMQ chọn vị trí 1, 2, 4 (L = 0 &lt; sp) ⇒ báo {2, 1, 3}; các nhánh còn lại có L ≥ sp nên dừng.</p>
+          <p class="muted" style="font-size:22px">Bản lập trình thi đấu: liệt kê giá trị phân biệt trong a[l..r] với prev[i].</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+[37:40 – 38:20] [30′ bỏ qua] Ứng dụng "thật" và đẹp nhất: RMQ trên mảng "lần xuất hiện trước" L. Đệ quy chỉ thăm số nút tỉ lệ số tài liệu cần báo ⇒ tối ưu. Sadakane (2007) làm bản nén dùng RMQ không cần truy cập L. Nguồn tổng quan: Navarro, ACM Computing Surveys 2014.
+  </aside>
+</section>
+
+<section data-part="5" data-section="05 · Ứng dụng &amp; bài tập">
+  <div class="frame">
+    <div class="kicker">Ứng dụng khác · phân biệt “dùng thật” và “họ hàng”</div>
+    <h2 class="title">RMQ trong các lĩnh vực khác</h2>
+    <div class="content">
+      <div class="cols-2">
+        <div class="card top" style="--c:var(--green)"><div class="tag">Cơ sở dữ liệu · dùng thật</div><p style="font-size:25px">Truy vấn MAX trên khối dữ liệu OLAP bằng cấu trúc tiền tính phân cấp (Ho, Agrawal, Megiddo, Srikant — SIGMOD 1997).</p></div>
+        <div class="card top" style="--c:var(--orange)"><div class="tag">Xử lý ảnh · họ hàng</div><p style="font-size:25px">Erosion/dilation = lọc min/max cửa sổ; van Herk (1992), Gil &amp; Werman (IEEE TPAMI 1993): ~3 phép so sánh/điểm ảnh.</p></div>
+        <div class="card top" style="--c:var(--blue)"><div class="tag">Chuỗi thời gian · họ hàng</div><p style="font-size:25px">Bộ lọc max-min trực tuyến ≤ 3 phép so sánh/phần tử (Lemire 2006), được GNU Scientific Library trích dẫn.</p></div>
+        <div class="card top" style="--c:var(--linear)"><div class="tag">Thuật toán · dùng thật</div><p style="font-size:25px">Hình chữ nhật lớn nhất trong histogram: chia để trị theo RMQ, hoặc ngăn xếp \(O(n)\) (LeetCode 84).</p></div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+[38:20 – 38:50] [30′ bỏ qua] Phân loại trung thực: "dùng thật" là RMQ trên đoạn tùy ý; "họ hàng" là min/max cửa sổ cố định giải bằng kỹ thuật riêng.
+Không đưa ví dụ "giá cổ phiếu" như ứng dụng có nguồn — chỉ là minh họa.
+  </aside>
+</section>
+
+<section data-part="5" data-section="05 · Ứng dụng &amp; bài tập">
+  <div class="frame">
+    <div class="kicker">Phản ví dụ · dùng RMQ sai chỗ</div>
+    <h2 class="title">Euler tour + RMQ cho LCA, nhưng KHÔNG cho min trên đường đi</h2>
+    <div class="content">
+      <div class="cols-2">
+        <div class="card">
+          <p style="font-size:25px">Cây: 1–2, 1–3, 2–4, 2–5, 3–6, 3–7. Trọng số đỉnh: w₁ = 10, w₂ = 8, w₃ = 6, w₄ = 7, <b class="bad">w₅ = −100</b>.</p>
+          <p style="font-size:25px">Đường 4 → 3 = 4, 2, 1, 3 ⇒ min đúng = <b class="good">6</b>.</p>
+          <p style="font-size:25px" class="fragment rise">Đoạn Euler giữa first[4] và first[3]: <span class="mono">4, 2, <b class="bad">5</b>, 2, 1, 3</span> — chứa đỉnh 5 <b>ngoài đường đi</b> ⇒ RMQ trên trọng số trả <b class="bad">−100</b>.</p>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div class="card tint fragment rise" style="--c:var(--green)"><div class="tag">Đúng</div><p style="font-size:25px">RMQ trên <b>độ sâu</b> D của Euler tour ⇒ LCA.</p></div>
+          <div class="card tint fragment rise" style="--c:var(--sparse)"><div class="tag">Trọng số tĩnh</div><p style="font-size:25px">Binary lifting kèm min: \(O(n \log n)\) / \(O(\log n)\) mỗi truy vấn.</p></div>
+          <div class="card tint fragment rise" style="--c:var(--seg)"><div class="tag">Có cập nhật</div><p style="font-size:25px">Heavy-Light Decomposition + Segment Tree: \(O(\log^2  n)\).</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+[38:50 – 39:20] Phản ví dụ quan trọng cho phần hỏi đáp: đoạn Euler giữa hai đỉnh chứa cả các nhánh rẽ ra ngoài đường đi. Bài tập minh họa: SPOJ DISQUERY, VNOJ LUBENICA.
+  </aside>
+</section>
+
+<section data-part="5" data-section="05 · Ứng dụng &amp; bài tập">
+  <div class="frame">
+    <div class="kicker">Bài tập ứng dụng · từ dễ đến khó</div>
+    <h2 class="title">Lộ trình luyện tập (đã kiểm tra đường dẫn)</h2>
+    <div class="content">
+      <div class="cols-3" style="gap:18px">
+        <div class="card" style="padding:18px 22px"><span class="lvl" style="--c:var(--p1)">Mức 1 · Trực tiếp</span>
+          <ul style="font-size:23px;margin-top:8px"><li><a href="https://cses.fi/problemset/task/1647">CSES 1647</a> — Sparse Table</li><li><a href="https://cses.fi/problemset/task/1649">CSES 1649</a> — Segment Tree</li><li><a href="https://oj.vnoi.info/problem/nklineup">VNOJ NKLINEUP</a> — max − min</li></ul></div>
+        <div class="card" style="padding:18px 22px"><span class="lvl" style="--c:var(--p2)">Mức 2 · Họ hàng</span>
+          <ul style="font-size:23px;margin-top:8px"><li><a href="https://oj.vnoi.info/problem/mink">VNOJ MINK</a> — deque</li><li><a href="https://cses.fi/problemset/task/1645">CSES 1645</a> — ngăn xếp</li><li><a href="https://oj.vnoi.info/problem/qmax2">VNOJ QMAX2</a> — lazy</li></ul></div>
+        <div class="card" style="padding:18px 22px"><span class="lvl" style="--c:var(--p3)">Mức 3 · Kết hợp</span>
+          <ul style="font-size:23px;margin-top:8px"><li><a href="https://codeforces.com/problemset/problem/689/D">CF 689D</a> — ST + chặt nhị phân</li><li><a href="https://codeforces.com/problemset/problem/1454/F">CF 1454F</a> — ST + chặt nhị phân</li><li><a href="https://codeforces.com/problemset/problem/475/D">CF 475D</a> — Sparse Table gcd</li></ul></div>
+        <div class="card" style="padding:18px 22px"><span class="lvl" style="--c:var(--p4)">Mức 4 · Cây</span>
+          <ul style="font-size:23px;margin-top:8px"><li><a href="https://cses.fi/problemset/task/1688">CSES 1688</a> — Euler + RMQ</li><li><a href="https://cses.fi/problemset/task/1135">CSES 1135</a> — khoảng cách</li><li><a href="https://oj.vnoi.info/problem/lubenica">VNOJ LUBENICA</a> — phản ví dụ</li></ul></div>
+        <div class="card" style="padding:18px 22px"><span class="lvl" style="--c:var(--p5)">Mức 5 · Chuỗi</span>
+          <ul style="font-size:23px;margin-top:8px"><li><a href="https://atcoder.jp/contests/abc213/tasks/abc213_f">ABC213 F</a> — SA + LCP</li><li><a href="https://codeforces.com/problemset/problem/1073/G">CF 1073G</a> — SA + LCP + RMQ</li></ul></div>
+        <div class="card tint" style="padding:18px 22px;--c:var(--sparse)"><span class="lvl" style="--c:var(--sparse)">Đọc thêm (tiếng Việt)</span>
+          <ul style="font-size:23px;margin-top:8px"><li><a href="https://wiki.vnoi.info/algo/data-structures/rmq">VNOI Wiki · RMQ</a></li><li><a href="https://wiki.vnoi.info/algo/data-structures/lca">VNOI Wiki · LCA</a></li><li><a href="https://wiki.vnoi.info/algo/data-structures/deque-min-max">VNOI Wiki · deque min-max</a></li></ul></div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+[39:20 – 39:40] Lộ trình: mỗi mức thêm một kỹ thuật. Danh sách đầy đủ 43 bài có trong báo cáo nghiên cứu (reports/). Lưu ý: VNOJ LQDDIV và CF 870B không phải bài RMQ (đã loại).
+  </aside>
+</section>
+
+<section data-part="0" data-section="Kết luận">
+  <div class="frame">
+    <div class="kicker">Kết luận</div>
+    <h2 class="title">Bốn điều mang về</h2>
+    <div class="content">
+      <div class="cols-2">
+        <div class="card top fragment rise" style="--c:var(--p1)"><h3>Tiền xử lý để tái sử dụng</h3><p style="font-size:26px">RMQ là phổ đánh đổi \(\langle P, Q, S \rangle\): từ \(\langle O(1), O(n) \rangle\) đến \(\langle O(n), O(1) \rangle\).</p></div>
+        <div class="card top fragment rise" style="--c:var(--p2)"><h3>Sparse Table = lũy đẳng</h3><p style="font-size:26px">Hai đoạn chồng lấn ⇒ \(O(1)\); mặc định cho RMQ tĩnh.</p></div>
+        <div class="card top fragment rise" style="--c:var(--p4)"><h3>Tối ưu nhờ cây Cartesian</h3><p style="font-size:26px">Chia khối + chung bảng theo hình dạng ⇒ \(\langle O(n), O(1) \rangle\); \(2n + o(n)\) bit là giới hạn thông tin.</p></div>
+        <div class="card top fragment rise" style="--c:var(--p5)"><h3>Chọn theo workload, có đo đạc</h3><p style="font-size:26px">Số truy vấn, độ dài đoạn, cập nhật, bộ nhớ quyết định lựa chọn.</p></div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">[39:40 – 40:00] Bốn thông điệp. Cảm ơn và mời câu hỏi.</aside>
+</section>
+
+<section data-part="0" data-section="Tài liệu tham khảo">
+  <div class="frame">
+    <div class="kicker">Tài liệu tham khảo (1/2) · Lý thuyết</div>
+    <h2 class="title" style="font-size:44px">Các công trình nền tảng</h2>
+    <div class="content">
+      <div class="refs" style="font-size:21px">
+        <p>[1] J. Vuillemin. A unifying look at data structures. <i>CACM</i> 23(4):229–239, 1980.</p>
+        <p>[2] H. N. Gabow, J. L. Bentley, R. E. Tarjan. Scaling and related techniques for geometry problems. <i>STOC</i> 1984, 135–143.</p>
+        <p>[3] D. Harel, R. E. Tarjan. Fast algorithms for finding nearest common ancestors. <i>SIAM J. Comput.</i> 13(2):338–355, 1984.</p>
+        <p>[4] O. Berkman, U. Vishkin. Recursive star-tree parallel data structure. <i>SIAM J. Comput.</i> 22(2):221–242, 1993.</p>
+        <p>[5] M. A. Bender, M. Farach-Colton. The LCA problem revisited. <i>LATIN 2000</i>, LNCS 1776, 88–94.</p>
+        <p>[6] J. Fischer, V. Heun. Theoretical and practical improvements on the RMQ-problem, with applications to LCA and LCE. <i>CPM 2006</i>, LNCS 4009, 36–48.</p>
+        <p>[7] J. Fischer. Optimal succinctness for range minimum queries. <i>LATIN 2010</i>, LNCS 6034, 158–169.</p>
+        <p>[8] J. Fischer, V. Heun. Space-efficient preprocessing schemes for range minimum queries on static arrays. <i>SIAM J. Comput.</i> 40(2):465–492, 2011.</p>
+        <p>[9] K. Sadakane. Succinct data structures for flexible text retrieval systems. <i>J. Discrete Algorithms</i> 5(1):12–22, 2007.</p>
+        <p>[10] G. S. Brodal, P. Davoodi, S. S. Rao. On space efficient two dimensional range minimum data structures. <i>Algorithmica</i> 63(4):815–830, 2012.</p>
+        <p>[11] M. Liu, H. Yu. Lower bound for succinct range minimum query. <i>STOC</i> 2020, 1402–1415.</p>
+        <p>[12] S. Alstrup, T. Husfeldt, T. Rauhe. Marked ancestor problems. <i>FOCS</i> 1998, 534–543.</p>
+        <p>[13] E. D. Demaine, G. M. Landau, O. Weimann. On Cartesian trees and range minimum queries. <i>Algorithmica</i> 68(3):610–625, 2014.</p>
+        <p>[14] A. Amir, J. Fischer, M. Lewenstein. Two-dimensional range minimum queries. <i>CPM 2007</i>, LNCS 4580, 286–294.</p>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">Danh mục đã đối chiếu DOI qua Crossref (xem báo cáo nghiên cứu để có DOI và link bản mở).</aside>
+</section>
+
+<section data-part="0" data-section="Tài liệu tham khảo">
+  <div class="frame">
+    <div class="kicker">Tài liệu tham khảo (2/2) · Thực nghiệm, ứng dụng, học liệu</div>
+    <h2 class="title" style="font-size:44px">Thực nghiệm và ứng dụng</h2>
+    <div class="content">
+      <div class="refs" style="font-size:21px">
+        <p>[15] H. Ferrada, G. Navarro. Improved range minimum queries. <i>J. Discrete Algorithms</i> 43:72–80, 2017.</p>
+        <p>[16] N. Baumstark, S. Gog, T. Heuer, J. Labeit. Practical range minimum queries revisited. <i>SEA 2017</i>, LIPIcs 75, art. 12.</p>
+        <p>[17] T. Kowalski, S. Grabowski. Faster range minimum queries. <i>Softw. Pract. Exp.</i> 48:2043–2060, 2018.</p>
+        <p>[18] M. Dima, R. Ceterchi. Efficient range minimum queries using binary indexed trees. <i>Olympiads in Informatics</i> 9:39–44, 2015.</p>
+        <p>[19] M. Alzamel, P. Charalampopoulos, C. S. Iliopoulos, S. P. Pissis. How to answer a small batch of RMQs or LCA queries in practice. <i>IWOCA 2017</i>, LNCS 10765, 343–355.</p>
+        <p>[20] Meneses, Navarro, Ferrada, Quezada. Accelerating range minimum queries with ray tracing cores. <i>Future Gener. Comput. Syst.</i> 157:98–111, 2024.</p>
+        <p>[21] S. Muthukrishnan. Efficient algorithms for document retrieval problems. <i>SODA</i> 2002, 657–666.</p>
+        <p>[22] G. Navarro. Spaces, trees, and colors: the algorithmic landscape of document retrieval on sequences. <i>ACM Comput. Surv.</i> 46(4):52, 2014.</p>
+        <p>[23] L. Ilie, G. Navarro, L. Tinta. The longest common extension problem revisited and applications to approximate string searching. <i>J. Discrete Algorithms</i> 8(4):418–428, 2010.</p>
+        <p>[24] C. M. Zmasek, S. R. Eddy. A simple algorithm to infer gene duplication and speciation events on a gene tree. <i>Bioinformatics</i> 17(9):821–828, 2001.</p>
+        <p>[25] D. Lemire. Streaming maximum-minimum filter using no more than three comparisons per element. <i>Nordic J. Computing</i> 13(4):328–339, 2006.</p>
+        <p>[26] C.-T. Ho, R. Agrawal, N. Megiddo, R. Srikant. Range queries in OLAP data cubes. <i>SIGMOD</i> 1997, 73–88.</p>
+        <p>[27] brunomont. Range minimum query in \(O(1)\) with linear time construction. Codeforces blog 78931, 2020.</p>
+        <p>[28] Học liệu: S. Wild, COMP526 Unit 9 (video); Stanford CS166 RMQ; VNOI Wiki (RMQ, LCA); cp-algorithms.</p>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">Nguồn video gợi ý xem lại: COMP526 Unit 9 (Sebastian Wild) — RMQ, Sparse Table, Cartesian tree, Exhaustive tabulation, LCE.</aside>
+</section>
+
+<section data-part="0" data-section="Hỏi đáp">
+  <div class="frame center" style="justify-content:center;align-items:center;text-align:center">
+    <div class="kicker" style="justify-content:center">Cảm ơn thầy cô và các bạn</div>
+    <h2 class="title" style="font-size:96px;margin:20px 0">Hỏi &amp; Đáp</h2>
+    <p class="muted" style="font-size:30px">Mã nguồn, benchmark, video manim và báo cáo nghiên cứu: thư mục <code>seminar/</code></p>
+    <div style="display:flex;gap:14px;justify-content:center;margin-top:30px">
+      <span class="pill c-scan">\(\langle O(1), O(n) \rangle\)</span><span class="pill c-seg">\(\langle O(n), O(\log n) \rangle\)</span><span class="pill c-sparse">\(\langle O(n \log n), O(1) \rangle\)</span><span class="pill c-linear">\(\langle O(n), O(1) \rangle\)</span>
+    </div>
+  </div>
+  <aside class="notes">Các slide phụ lục phía sau dùng để trả lời câu hỏi: FAQ phản biện, lazy, 2D, offline, Disjoint Sparse Table, tái lập benchmark.</aside>
+</section>
+
+<!-- ===================================================== PHỤ LỤC -->
+<section data-part="0" data-section="Phụ lục">
+  <div class="frame">
+    <div class="kicker">Phụ lục A · Câu hỏi phản biện thường gặp</div>
+    <h2 class="title" style="font-size:44px">Chuẩn bị trả lời</h2>
+    <div class="content">
+      <div class="cols-2" style="gap:18px;font-size:23px">
+        <div class="card" style="padding:16px 20px"><b>Truy vấn \(O(1)\) khi phải tính log?</b><br>Bảng lg[] \(O(n)\) hoặc <code>__builtin_clz</code>; tránh log2() số thực.</div>
+        <div class="card" style="padding:16px 20px"><b>Có cập nhật thì Sparse Table?</b><br>Một cập nhật làm hỏng \(\Theta(n)\) ô ⇒ xây lại; dùng Segment Tree (cận dưới \(\Theta(\log n/\log \log n)\)).</div>
+        <div class="card" style="padding:16px 20px"><b>Giá trị trùng nhau?</b><br>So sánh cặp (A[i], i), chọn trái nhất, nhất quán ở mọi bước.</div>
+        <div class="card" style="padding:16px 20px"><b>Fischer–Heun hơn Sparse Table ở đâu?</b><br>Build và bộ nhớ \(O(n)\) thay vì \(O(n \log n)\); đổi lại hằng số và độ phức tạp cài đặt.</div>
+        <div class="card" style="padding:16px 20px"><b>\(O(n)\) bộ nhớ có phải \(O(n)\) bit?</b><br>Không: \(O(n)\) word = \(O(n \log n)\) bit. \(2n + o(n)\) bit là kết quả succinct riêng, chỉ trả argmin.</div>
+        <div class="card" style="padding:16px 20px"><b>Bitmask RMQ dùng cho gcd được không?</b><br>Không: cần đáp án là một phần tử và phép so sánh (min/max). gcd dùng Sparse Table.</div>
+        <div class="card" style="padding:16px 20px"><b>Ai đạt \(\langle O(n), O(1) \rangle\) đầu tiên?</b><br>Gabow–Bentley–Tarjan 1984 (qua LCA của Harel–Tarjan), không phải Bender–Farach-Colton 2000.</div>
+        <div class="card" style="padding:16px 20px"><b>Euler tour dài bao nhiêu?</b><br>2n − 1 phần tử (ghi nút khi đi xuống và mỗi lần quay về).</div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">Slide dự phòng cho hỏi đáp.</aside>
+</section>
+
+<section data-part="0" data-section="Phụ lục">
+  <div class="frame">
+    <div class="kicker">Phụ lục B · Cập nhật đoạn</div>
+    <h2 class="title" style="font-size:44px">Lazy Segment Tree: cộng / gán cả đoạn</h2>
+    <div class="content">
+      <div class="cols-2">
+        <div class="card">
+          <p style="font-size:26px">Nếu cả nút được cộng c thì min của nút cũng tăng c ⇒ lưu <b>tag</b> tại nút, chỉ đẩy xuống khi cần đi sâu hơn.</p>
+          <p style="font-size:26px">Mỗi thao tác chạm \(O(\log n)\) nút ⇒ <span class="pill c-seg">\(O(\log n)\)</span></p>
+          <p style="font-size:24px" class="muted">Gán đoạn: tag gán phải phân biệt “chưa có tag” với “gán bằng 0”; gộp tag gán rồi cộng đúng thứ tự.</p>
+        </div>
+        <div class="card">
+          <div class="tag" style="color:var(--seg)">Ví dụ (từ mảng gốc)</div>
+          <p class="mono" style="font-size:24px">A = [5, 2, 6, 3, 1, 7, 4, 8]</p>
+          <p class="mono" style="font-size:24px">+3 vào [2, 5] → [5, 5, 9, 6, 4, 7, 4, 8]</p>
+          <p style="font-size:25px">min [2, 7] = <b class="good">4</b> (trước đó là 1)</p>
+          <p class="mono" style="font-size:24px">gán [2, 5] := 10 → [5, 10, 10, 10, 10, 7, 4, 8]</p>
+          <p style="font-size:25px">min [2, 7] = <b class="good">4</b></p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">Bài tập: VNOJ QMAX2, CF 52C Circular RMQ.</aside>
+</section>
+
+<section data-part="0" data-section="Phụ lục">
+  <div class="frame">
+    <div class="kicker">Phụ lục C · RMQ hai chiều</div>
+    <h2 class="title" style="font-size:44px">Ma trận: hình chữ nhật nhỏ nhất</h2>
+    <div class="content">
+      <div class="cols-2">
+        <div class="card">
+          <div class="tag" style="color:var(--orange)">Sparse Table 2D</div>
+          <p style="font-size:25px">\(st[a][b][i][j]\) = min hình chữ nhật \(2^a\times 2^b\); truy vấn ghép 4 hình chồng lấn ⇒ \(O(1)\).</p>
+          <p style="font-size:25px">Build/bộ nhớ \(O(RC\log R\log C)\). Ví dụ: ma trận [[5,2,6],[3,1,7],[4,8,0]], hàng 1–2 × cột 2–3 → 1.</p>
+          <p style="font-size:23px" class="muted">Bài tập: CodeChef CHSQARR; VNOI Wiki có mục Sparse Table 2D.</p>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="card tint" style="--c:var(--sparse)"><div class="tag">Indexing</div><p style="font-size:24px">\(O(N)\) bit thêm, \(O(1)\) truy vấn, \(O(N)\) tiền xử lý; N/c bit ⇒ \(\Omega(c)\) (Brodal–Davoodi–Rao 2010/12).</p></div>
+          <div class="card tint" style="--c:var(--linear)"><div class="tag">Encoding</div><p style="font-size:24px">Không có “cây Cartesian 2D”: số mẫu đáp án quá lớn ⇒ cần \(\Omega(N \log m)\) bit (Demaine–Landau–Weimann 2009/14; Brodal–Brodnik–Davoodi 2013).</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">Không mang nguyên kết quả 2n bit của 1D sang 2D.</aside>
+</section>
+
+<section data-part="0" data-section="Phụ lục">
+  <div class="frame">
+    <div class="kicker">Phụ lục D · Ngoại tuyến &amp; Disjoint Sparse Table</div>
+    <h2 class="title" style="font-size:44px">Khi biết trước truy vấn, hoặc phép toán không lũy đẳng</h2>
+    <div class="content">
+      <div class="cols-2">
+        <div class="card">
+          <div class="tag" style="color:var(--green)">Arpa’s trick (offline)</div>
+          <ul style="font-size:24px"><li>Sắp truy vấn theo r; quét i = 1..n với ngăn xếp đơn điệu.</li><li>Phần tử bị pop được hợp (DSU) vào i.</li><li>Truy vấn (l, r) tại r: đáp án A[find(l)].</li><li>Tổng \(O((n + q)\cdot \alpha (n))\).</li></ul>
+          <p style="font-size:23px" class="muted">Lô nhỏ q ≪ n: co các vùng giữa đầu mút thành min của vùng, giữ ánh xạ chỉ số (Alzamel et al. 2017).</p>
+        </div>
+        <div class="card">
+          <div class="tag" style="color:var(--blue)">Disjoint Sparse Table</div>
+          <ul style="font-size:24px"><li>Mỗi tầng chia mảng thành khối \(2^k\); lưu tổng hậu tố/tiền tố từ điểm giữa khối.</li><li>Truy vấn: tầng = bit cao nhất của \(l \oplus r\); đáp án = suf[l] ⊕ pre[r].</li><li>\(O(n \log n)\) build, \(O(1)\) truy vấn, đúng cho <b>mọi phép kết hợp</b>.</li></ul>
+          <p style="font-size:23px" class="muted">Sqrt Tree: \(O(n \log \log n)\), \(O(1)\) truy vấn, hỗ trợ cập nhật (cp-algorithms).</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">Dự phòng.</aside>
+</section>
+
+<section data-part="0" data-section="Phụ lục">
+  <div class="frame">
+    <div class="kicker">Phụ lục E · Tái lập kết quả</div>
+    <h2 class="title" style="font-size:44px">Chạy lại benchmark, hình và video</h2>
+    <div class="content">
+<pre><code class="language-bash" data-trim data-noescape>
+# Benchmark (≈ 1 phút): tự kiểm tra tính đúng rồi đo 4 thí nghiệm
+cd seminar/benchmark
+g++ -O3 -DNDEBUG -std=c++17 -march=native rmq_bench.cpp -o rmq_bench
+taskset -c 2 ./rmq_bench all &gt; results_raw.csv 2&gt; run.log
+
+# Biểu đồ (matplotlib) → slides/figures/*.svg
+python seminar/figures/make_figures.py
+
+# Video manim (3b1b/manim, ManimGL) → slides/media/*.mp4
+cd seminar/manim &amp;&amp; ./render_all.sh --hd ../slides/media
+
+# Trình chiếu
+cd seminar/slides &amp;&amp; python -m http.server 8000   # mở http://localhost:8000
+</code></pre>
+      <p class="source">Kết quả sẽ khác theo máy/trình biên dịch/tải hệ thống. Biên dịch trên chính máy chạy (vì -march=native).</p>
+    </div>
+  </div>
+  <aside class="notes">Dự phòng.</aside>
+</section>
+
+</div>
+<div class="deck-footer"><span>RMQ · Seminar thuật toán</span><span class="sep"></span><span class="sec"></span></div>
+</div>
+
+<script src="vendor/reveal/dist/reveal.js"></script>
+<script src="vendor/reveal/plugin/notes/notes.js"></script>
+<script src="vendor/reveal/plugin/math/math.js"></script>
+<script src="vendor/reveal/plugin/highlight/highlight.js"></script>
+<script src="vendor/reveal/plugin/zoom/zoom.js"></script>
+<script src="js/bench-data.js"></script>
+<script>
+  // PDF: show plain line numbers instead of stacked step-highlight clones
+  if (/print-pdf/.test(location.search)) {
+    document.querySelectorAll("code[data-line-numbers]").forEach((c) => c.setAttribute("data-line-numbers", ""));
+  }
+  Reveal.initialize({
+    width: 1600, height: 900, margin: 0.02, minScale: 0.2, maxScale: 2.5,
+    center: false, hash: true, slideNumber: "c/t", showSlideNumber: "all",
+    controls: true, controlsTutorial: false, progress: true,
+    transition: "slide", transitionSpeed: "default", backgroundTransition: "fade",
+    autoAnimateDuration: 0.7, pdfSeparateFragments: false, pdfMaxPagesPerSlide: 1,
+    katex: { local: "vendor/katex", strict: "ignore", delimiters: [
+      { left: "$$", right: "$$", display: true },
+      { left: "\\(", right: "\\)", display: false } ], ignoredTags: ["pre", "code", "script", "noscript", "style", "textarea"] },
+    highlight: { beforeHighlight: (hljs) => {} },
+    plugins: [RevealMath.KaTeX, RevealHighlight, RevealNotes, RevealZoom]
+  });
+</script>
+<script src="js/deck.js"></script>
+</body>
+</html>

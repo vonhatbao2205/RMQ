@@ -1,0 +1,14 @@
+{
+  "date": "2026-11-02",
+  "cpu": "13th Gen Intel(R) Core(TM) i5-13500HX",
+  "pinned_cpu": 2,
+  "cpu_note": "P-core, governor powersave, laptop, not isolated",
+  "cache": "L1d 48 KiB/P-core, L2 1.25 MiB/P-core, L3 24 MiB shared",
+  "ram": "15Gi",
+  "compiler": "g++ (GCC) 15.3.0",
+  "flags": "-O3 -DNDEBUG -std=c++17 -march=native -Wall -Wextra",
+  "kernel": "Linux 6.18.59",
+  "repetitions": 5,
+  "values": "mt19937_64 fixed seeds, uniform integers 0..1e9",
+  "memory": "auxiliary numeric payload only (beyond input A); Segment counts 2n ints, Sparse counts level 0 copy, FischerHeun counts block types, shared table and the sparse table over block minima"
+}

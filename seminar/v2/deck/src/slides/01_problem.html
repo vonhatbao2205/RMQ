@@ -1,0 +1,40 @@
+<section class="s" data-act="1" data-title="Định nghĩa RMQ" data-time="50">
+  <div class="eyebrow"><b>Bài toán</b></div>
+  <h2>RMQ: vị trí nhỏ nhất trong một đoạn</h2>
+  <div class="body">
+    <div class="grow" data-w="defx"></div>
+    <div style="width:600px;flex:none" class="stack">
+      <div class="key pi"><div class="formula">$$\mathrm{RMQ}_A(l,r)=\arg\min_{l\le k\le r} A[k]$$</div></div>
+      <ul class="plain">
+        <li>Đoạn liên tiếp, gồm cả hai đầu</li>
+        <li>Trả về <b>vị trí</b>, không phải giá trị</li>
+        <li>Bằng nhau: chọn <b>bên trái</b></li>
+      </ul>
+      <p class="small">A: giá 8 ngày từ 3/11, đơn vị trăm nghìn đồng</p>
+    </div>
+  </div>
+  <div class="say" data-mood="talk">Hai ngày cùng giá thì mình bay ngày sớm hơn: đó là quy tắc chọn bên trái.</div>
+  <div class="notes"><p>Từ đây Pi thu gọn thành 8 ngày từ 3/11, giá theo trăm nghìn đồng: A = [7, 4, 9, 4, 6, 2, 2, 8]. Chỉ số bắt đầu từ 0 trong toàn bộ buổi.</p><p>Phân biệt min và argmin. Biết vị trí thì lấy được giá trị, chiều ngược lại thì không. RMQ(1,4) = 1 vì giá trị 4 xuất hiện ở vị trí 1 và 3, chọn trái. RMQ(3,6) = 5 là chỉ số trong mảng gốc, không phải thứ tự 2 trong đoạn con.</p></div>
+</section>
+
+<section class="s" data-act="1" data-title="Chi phí: chuẩn bị và trả lời" data-time="40">
+  <div class="eyebrow"><b>Bài toán</b></div>
+  <h2>Chuẩn bị một lần, trả lời nhiều lần</h2>
+  <div class="body col">
+    <div style="display:grid;grid-template-columns:1fr 90px 1fr 90px 1fr;align-items:center;gap:0">
+      <div class="key" style="text-align:center"><h3>Mảng $A$</h3><p class="txt">có sẵn, không đổi</p></div>
+      <div style="text-align:center;font-size:44px;color:var(--muted)">→</div>
+      <div class="key rise" data-at="1" style="text-align:center;border-color:var(--fh)"><h3 class="c-fh">Tiền xử lý $P(n)$</h3><p class="txt">làm một lần</p></div>
+      <div class="rise" data-at="2" style="text-align:center;font-size:44px;color:var(--muted)">→</div>
+      <div class="key rise" data-at="2" style="text-align:center;border-color:var(--query)"><h3 class="q">Truy vấn $Q(n)$</h3><p class="txt">mỗi lần truy vấn</p></div>
+    </div>
+    <div class="key a rise" data-at="3" style="max-width:900px;margin:10px auto 0"><div class="formula">$$T(n,q)\approx P(n)+q\cdot Q(n)$$</div></div>
+    <p class="lead rise" data-at="4" style="text-align:center">Mục tiêu: lưu ít hơn bảng mọi đoạn, truy vấn nhanh hơn quét.</p>
+  </div>
+  <div class="say" data-step="0" data-mood="neutral">Bảng giá có trước. Truy vấn đến sau, không biết trước.</div>
+  <div class="say" data-step="1" data-mood="talk">Giai đoạn một: làm việc một lần, lưu thứ có ích.</div>
+  <div class="say" data-step="2" data-mood="talk">Giai đoạn hai: mỗi truy vấn chỉ dùng những gì đã lưu.</div>
+  <div class="say" data-step="3" data-mood="think">Tổng chi phí: chuẩn bị cộng $q$ lần trả lời.</div>
+  <div class="say" data-step="4" data-mood="happy">Lưu gì thì vừa đủ? Thử hai cách cực đoan trước.</div>
+  <div class="notes"><p>Mô hình trong bài giảng của Sebastian Wild. Hai điều kiện: mảng tĩnh, truy vấn chưa biết trước. Ký hiệu một lời giải là ⟨P(n), Q(n)⟩, bộ nhớ phụ là S(n).</p><p>Một cấu trúc xây rất lâu chưa chắc đáng dùng nếu chỉ truy vấn vài lần, nên không thể chỉ nhìn tốc độ của một truy vấn. Công thức này quay lại ở phần benchmark.</p></div>
+</section>

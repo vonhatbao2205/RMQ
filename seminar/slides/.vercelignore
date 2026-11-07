@@ -1,0 +1,9 @@
+# Chỉ deploy file tĩnh cần cho trình chiếu
+node_modules
+package.json
+package-lock.json
+present.sh
+# Không bao giờ upload thông tin xác thực / cấu hình cục bộ
+.env*
+.vercel
+.gitignore

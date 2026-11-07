@@ -1,0 +1,133 @@
+<section class="s" data-act="2" data-title="Hai thái cực: quét và bảng mọi đoạn" data-time="55">
+  <div class="eyebrow"><b>Cơ sở thuật toán</b></div>
+  <h2>Không chuẩn bị gì, hoặc chuẩn bị mọi thứ</h2>
+  <div class="body">
+    <div data-w="allpairs" style="flex:none;width:610px"></div>
+    <div class="grow stack">
+      <table class="t">
+        <tr><th>Cách</th><th>Tiền xử lý</th><th>Truy vấn</th><th>Bộ nhớ</th></tr>
+        <tr><td class="h c-scan">Quét khi truy vấn</td><td>$O(1)$</td><td>$O(n)$</td><td>$O(1)$</td></tr>
+        <tr class="rise" data-at="1"><td class="h">Bảng mọi đoạn</td><td>$O(n^2)$</td><td>$O(1)$</td><td>$O(n^2)$</td></tr>
+      </table>
+      <div class="key rise" data-at="1"><div class="formula" style="font-size:33px">$$M[l][r]=\mathrm{better}(M[l][r-1],\ r)$$</div></div>
+      <p class="lead rise" data-at="2">$n = 10^6$ ⇒ khoảng <b class="bad">$5\cdot10^{11}$</b> ô</p>
+      <p class="lead rise" data-at="3"><b>Có cách nào tốt hơn?</b></p>
+    </div>
+  </div>
+  <div class="say" data-step="0" data-mood="neutral">Bảng $M[l][r]$: mỗi ô là đáp án một đoạn.</div>
+  <div class="say" data-step="1" data-mood="talk">Mở rộng đoạn thêm một phần tử: chỉ cần một phép so sánh.</div>
+  <div class="say" data-step="2" data-mood="surprised">Nhưng số ô tăng theo bình phương.</div>
+  <div class="say" data-step="3" data-mood="think">Một bên không lưu gì, một bên lưu tất cả.</div>
+  <div class="notes"><p>Nếu mỗi ô lại quét đoạn thì tốn O(n³). Thêm một phần tử mới, cực tiểu chỉ có hai khả năng: vẫn là cực tiểu cũ, hoặc chính phần tử mới. Nhờ quy hoạch động, mỗi ô O(1), cả bảng O(n²).</p><p>Mảng n phần tử có n(n+1)/2 đoạn: n = 8 là 36 ô, n = 10^6 là khoảng 5·10^11 ô. Rê chuột trên bảng để thấy đoạn tương ứng.</p></div>
+</section>
+
+<section class="s" data-act="2" data-title="Chia khối √n" data-time="50" data-opt>
+  <div class="eyebrow"><b>Cơ sở thuật toán</b></div>
+  <h2>Chia khối √n: nhớ min từng khối, chỉ quét hai đầu</h2>
+  <div class="body">
+    <div class="grow" data-w="sqrtx"></div>
+    <div style="width:420px;flex:none" class="stack">
+      <div class="key"><div class="formula" style="font-size:32px">$$Q=O\!\left(b+\frac{n}{b}\right)$$</div></div>
+      <p class="lead">Tốt nhất khi $b\approx\sqrt n$</p>
+      <table class="t">
+        <tr><td>Xây</td><td class="h">$O(n)$</td></tr>
+        <tr><td>Truy vấn</td><td class="h">$O(\sqrt n)$</td></tr>
+        <tr><td>Sửa</td><td class="h">$O(\sqrt n)$</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="say" data-mood="talk">Kéo $b$: khối nhỏ thì đọc nhiều min, khối lớn thì quét nhiều biên.</div>
+  <div class="notes"><p>Đoạn truy vấn tách thành hai phần biên phải quét và các khối trọn vẹn chỉ đọc min đã lưu. Cân bằng b ≈ n/b cho b ≈ √n. Ví dụ mảng 16 phần tử, truy vấn [2,13]: cột thấp nhất ở b = 4.</p><p>Khi sửa một phần tử, chỉ khối chứa nó phải quét lại: O(√n). Bộ nhớ phụ O(√n).</p></div>
+</section>
+
+<section class="s video" data-act="2" data-title="Segment Tree (video)" data-time="59">
+  <video src="media/M04_SegmentTree.mp4" poster="media/posters/M04_SegmentTree.jpg" preload="auto"></video>
+  <div class="notes"><p>Ba ý: xây từ dưới lên O(n); đoạn truy vấn ghép từ tối đa 2 nút mỗi tầng; sửa một phần tử chỉ chạm đường lên gốc.</p></div>
+</section>
+
+<section class="s" data-act="2" data-title="Sparse Table: ý tưởng" data-time="55">
+  <div class="eyebrow"><b>Cơ sở thuật toán</b></div>
+  <h2>Sparse Table: chỉ lưu đoạn dài 1, 2, 4, 8, …</h2>
+  <div class="body">
+    <div class="grow" data-w="stread"></div>
+    <div style="width:540px;flex:none" class="stack">
+      <div class="key pi"><div class="formula" style="font-size:34px">$$st[k][i]=\mathrm{RMQ}(i,\ i+2^k-1)$$</div></div>
+      <ul class="plain">
+        <li>$k$: số mũ của độ dài</li>
+        <li>$i$: vị trí bắt đầu</li>
+        <li>Ô lưu <b>vị trí</b> nhỏ nhất</li>
+      </ul>
+      <p class="lead rise" data-at="3"><b class="c-sparse">21 ô</b> thay vì 36</p>
+    </div>
+  </div>
+  <div class="say" data-step="0" data-mood="talk">Hàng đầu: đoạn dài 1, đáp án là chính nó.</div>
+  <div class="say" data-step="1" data-mood="talk">Rê chuột vào một ô để xem nó đại diện cho đoạn nào.</div>
+  <div class="say" data-step="2" data-mood="talk">$st[2][3]=5$: đoạn bắt đầu tại 3, dài 4, nhỏ nhất ở vị trí 5.</div>
+  <div class="say" data-step="3" data-mood="happy">Bỏ rất nhiều đoạn. Đoạn dài 6 thì sao? Lát nữa sẽ rõ.</div>
+  <div class="notes"><p>Vì lưu vị trí nên hàng đầu là st[0][i] = i, không phải A[i]. Khoảng log₂ n hàng, mỗi hàng tối đa n ô. Đây là chỗ người nghe hay nhầm: chỉ số thứ hai là vị trí bắt đầu.</p></div>
+</section>
+
+<section class="s video" data-act="2" data-title="Sparse Table: xây bảng (video)" data-time="74">
+  <video src="media/M02_SparseBuild.mp4" poster="media/posters/M02_SparseBuild.jpg" preload="auto"></video>
+  <div class="notes"><p>Đoạn dài 8 tách thành hai đoạn dài 4, đoạn dài 4 tách thành hai đoạn dài 2. Nửa phải bắt đầu tại i + 2^(k−1). Dừng ở st[2][1] để nói về quy tắc chọn bên trái.</p></div>
+</section>
+
+<section class="s video" data-act="2" data-title="Sparse Table: truy vấn (video)" data-time="67">
+  <video src="media/M03_SparseQuery.mp4" poster="media/posters/M03_SparseQuery.jpg" preload="auto"></video>
+  <div class="notes"><p>Ý quan trọng nhất của phần cơ sở: hai khối chồng lấn phủ kín đoạn truy vấn. Phần cuối video cho thấy vì sao mẹo này không dùng được với phép cộng.</p></div>
+</section>
+
+<section class="s" data-act="2" data-title="Vì sao hai khối luôn đủ" data-time="50">
+  <div class="eyebrow"><b>Cơ sở thuật toán</b></div>
+  <h2>Vì sao hai khối luôn đủ?</h2>
+  <div class="body col">
+    <div data-w="cover"></div>
+    <div class="keys3" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:26px">
+      <div class="key rise" data-at="1"><h3>Nằm trong đoạn</h3><p class="lead" style="margin-top:8px">$2^k\le L$</p></div>
+      <div class="key rise" data-at="2"><h3>Phủ kín đoạn</h3><p class="lead" style="margin-top:8px">$L&lt;2^{k+1}$</p></div>
+      <div class="key rise" data-at="3"><h3>Luỹ đẳng</h3><p class="lead" style="margin-top:8px">$\min(x,x)=x$</p></div>
+    </div>
+  </div>
+  <div class="say" data-step="0" data-mood="talk">Kéo $L$ từ 1 đến 32: không bao giờ có ô đỏ.</div>
+  <div class="say" data-step="1" data-mood="think">Khối không dài hơn đoạn, nên không lấy nhầm phần tử ngoài.</div>
+  <div class="say" data-step="2" data-mood="think">Hai khối đủ dài để gặp nhau ở giữa.</div>
+  <div class="say" data-step="3" data-mood="happy">Phần chung xét hai lần không đổi min. Không dùng được cho phép cộng.</div>
+  <div class="notes"><p>Ba ý ứng với ba điều kiện. Tính lũy đẳng min(x,x) = x đúng cho min, max, gcd, AND, OR, nhưng không đúng cho tổng.</p><p>Phân biệt: lúc xây bảng ghép hai nửa bằng nhau không giao nhau; lúc truy vấn ghép hai khối bám hai đầu và có thể chồng lấn.</p></div>
+</section>
+
+<section class="s" data-act="2" data-title="Sparse Table trong C++" data-time="45">
+  <div class="eyebrow"><b>Cơ sở thuật toán</b></div>
+  <h2>Sparse Table trong C++</h2>
+  <div class="body">
+    <pre class="code grow" style="font-size:23.5px"><span class="k">struct</span> <span class="ty">SparseTable</span> {
+    vector&lt;<span class="k">long long</span>&gt; a; vector&lt;<span class="k">int</span>&gt; lg; vector&lt;vector&lt;<span class="k">int</span>&gt;&gt; st;
+    <span class="k">int</span> <span class="f">better</span>(<span class="k">int</span> p, <span class="k">int</span> q) <span class="k">const</span> {    <span class="m">// giá trị nhỏ hơn; bằng nhau lấy bên trái</span>
+        <span class="k">if</span> (a[p] != a[q]) <span class="k">return</span> a[p] &lt; a[q] ? p : q;
+        <span class="k">return</span> min(p, q);
+    }
+    <span class="k">explicit</span> <span class="f">SparseTable</span>(<span class="k">const</span> vector&lt;<span class="k">long long</span>&gt;&amp; v) : a(v) {
+        <span class="k">int</span> n = a.size();
+        lg.assign(n + <span class="n">1</span>, <span class="n">0</span>);
+        <span class="k">for</span> (<span class="k">int</span> x = <span class="n">2</span>; x &lt;= n; ++x) lg[x] = lg[x / <span class="n">2</span>] + <span class="n">1</span>;
+        st.assign(lg[n] + <span class="n">1</span>, vector&lt;<span class="k">int</span>&gt;(n));
+        iota(st[<span class="n">0</span>].begin(), st[<span class="n">0</span>].end(), <span class="n">0</span>);
+        <span class="k">for</span> (<span class="k">int</span> k = <span class="n">1</span>; k &lt;= lg[n]; ++k)
+            <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i + (<span class="n">1</span> &lt;&lt; k) &lt;= n; ++i)
+                st[k][i] = better(st[k-<span class="n">1</span>][i], st[k-<span class="n">1</span>][i + (<span class="n">1</span> &lt;&lt; (k-<span class="n">1</span>))]);
+    }
+    <span class="k">int</span> <span class="f">rmq</span>(<span class="k">int</span> l, <span class="k">int</span> r) <span class="k">const</span> {      <span class="m">// O(1), trả về vị trí</span>
+        <span class="k">int</span> k = lg[r - l + <span class="n">1</span>];
+        <span class="k">return</span> better(st[k][l], st[k][r - (<span class="n">1</span> &lt;&lt; k) + <span class="n">1</span>]);
+    }
+};</pre>
+    <div style="width:480px;flex:none" class="stack">
+      <table class="t">
+        <tr><td>Xây</td><td class="h">$O(n\log n)$</td></tr>
+        <tr><td>Truy vấn</td><td class="h">$O(1)$</td></tr>
+        <tr><td>Bộ nhớ</td><td class="h">$O(n\log n)$</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="say" data-mood="talk">Xây theo $k$ tăng dần nên hai ô nhỏ hơn luôn có sẵn.</div>
+  <div class="notes"><p>Viết min(p, q) sẽ chọn chỉ số nhỏ hơn kể cả khi giá trị lớn hơn. lg[x] = lg[x/2] + 1 vì mỗi lần chia đôi phần nguyên của log₂ giảm đúng 1. q truy vấn tốn O(n log n + q).</p><p>Code đã biên dịch và kiểm thử bằng duyệt trâu trong tools/check_code.py. Mảng 7 4 9 4 6 2 2 8: truy vấn (1,6) trả 5, (1,4) trả 1, (2,2) trả 2, (6,7) trả 6.</p></div>
+</section>

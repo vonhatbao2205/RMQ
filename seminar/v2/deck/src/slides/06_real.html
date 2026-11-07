@@ -1,0 +1,101 @@
+<section class="s" data-act="6" data-title="RMQ xuất hiện ở đâu?" data-time="30">
+  <div class="eyebrow"><b>Thực tế</b></div>
+  <h2>RMQ ngoài đời</h2>
+  <div class="body col">
+    <table class="t">
+      <tr><th>Lĩnh vực</th><th>RMQ dùng để</th><th>Mức độ</th></tr>
+      <tr><td class="h">Chuỗi thời gian</td><td>min, max trong khoảng thời gian</td><td><span class="tag direct">Trực tiếp</span></td></tr>
+      <tr><td class="h">Sinh tin học</td><td>tìm đoạn DNA giống nhau</td><td><span class="tag direct">Trực tiếp</span></td></tr>
+      <tr><td class="h">Tìm kiếm tài liệu</td><td>liệt kê mỗi tài liệu một lần</td><td><span class="tag direct">Trực tiếp</span></td></tr>
+      <tr><td class="h">Cây phân cấp</td><td>tổ tiên chung (LCA)</td><td><span class="tag indirect">Quy đổi</span></td></tr>
+      <tr><td class="h">Xử lý ảnh</td><td>min trong một vùng ảnh</td><td><span class="tag indirect">RMQ 2D</span></td></tr>
+    </table>
+  </div>
+  <div class="say" data-mood="talk">Trực tiếp: RMQ là phép toán cốt lõi. Quy đổi: bài toán đưa được về RMQ.</div>
+  <div class="notes"><p>Cần nói chính xác: RMQ là phép toán nền tảng xuất hiện trong các bài toán này. Không kết luận rằng mọi hệ thống chứng khoán, tìm kiếm hay xử lý ảnh đều chạy Sparse Table hay Fischer–Heun; hệ thống thật có thể dùng cách khác. Không khẳng định Google Search hay Elasticsearch dùng các thuật toán này khi không có bằng chứng triển khai.</p></div>
+</section>
+
+<section class="s" data-act="6" data-title="Chuỗi thời gian: biểu đồ giá" data-time="50" data-steps="2">
+  <div class="eyebrow"><b>Thực tế</b></div>
+  <h2>Vẽ biểu đồ: mỗi cột là một cặp RMQ min, max</h2>
+  <div class="body col">
+    <div data-w="ts"></div>
+  </div>
+  <div class="say" data-step="0" data-mood="talk">Biểu đồ này chạy RMQ thật ngay trong trình duyệt.</div>
+  <div class="say" data-step="1" data-mood="happy">Chọn một khoảng: chấm xanh là giá thấp nhất, chấm đỏ là cao nhất.</div>
+  <div class="say" data-step="2" data-mood="surprised">Zoom vào: hình dạng vẫn đúng vì cực trị luôn được giữ.</div>
+  <div class="notes"><p>Mỗi cột điểm ảnh truy vấn min và max của đoạn nó đại diện, nên đường vẽ không mất đỉnh. Câu hỏi quen thuộc: giá thấp nhất từ 9 giờ đến 11 giờ? CPU có từng dưới 10%? Dữ liệu tĩnh thì Sparse Table, cập nhật liên tục thì Segment Tree hoặc cấu trúc tổng hợp nhiều cấp.</p><p>OM³ (SIGMOD 2023) dùng cây min–max nhiều cấp của riêng nó, không phải Sparse Table; tác giả báo cáo độ trễ trong 300 ms trên trình duyệt, với dữ liệu từ hàng triệu đến hàng tỷ bản ghi.</p></div>
+</section>
+
+<section class="s" data-act="6" data-title="DNA: Suffix Array + LCP + RMQ" data-time="60" data-steps="4">
+  <div class="eyebrow"><b>Thực tế</b></div>
+  <h2>DNA: đoạn chung của hai hậu tố là một RMQ</h2>
+  <div class="body">
+    <div data-w="dna" class="grow"></div>
+    <div class="dna-extra stack">
+      <div class="key pi rise" data-at="3"><div class="formula" style="font-size:30px">$$\mathrm{LCP}(p,q)=\min_{p<k\le q}\mathrm{LCP}[k]$$</div></div>
+      <p class="small rise" data-at="4">Nguồn: kmacs, Bioinformatics 2014</p>
+    </div>
+  </div>
+  <div class="say" data-step="0" data-mood="talk">Liệt kê mọi hậu tố của chuỗi DNA.</div>
+  <div class="say" data-step="1" data-mood="neutral">Sắp xếp: các hậu tố giống nhau gom lại cạnh nhau.</div>
+  <div class="say" data-step="2" data-mood="talk">Mỗi dòng nhớ nó giống dòng trên bao nhiêu ký tự.</div>
+  <div class="say" data-step="3" data-mood="happy">Hai dòng kề nhau: đoạn lặp GATTAC, dài 6.</div>
+  <div class="say" data-step="4" data-mood="surprised">Hai dòng cách xa: lấy min các ô ở giữa. Đó là RMQ.</div>
+  <div class="notes"><p>Vì sao đúng: các hậu tố đã sắp xếp nên chuỗi có cùng tiền tố nằm liền nhau; tiền tố chung của hai đầu phải đi qua mọi cặp ở giữa, cặp yếu nhất quyết định. Sau tiền xử lý, mỗi truy vấn O(1) thay vì so từng ký tự. Chi phí toàn bộ còn phải cộng việc xây suffix array và LCP.</p><p>kmacs (Leimeister &amp; Morgenstern, Bioinformatics 2014) trình bày cách dùng RMQ trên mảng LCP để so sánh trình tự và có tùy chọn RMQ, nhưng tác giả dùng so từng ký tự làm mặc định vì nhanh hơn trong thử nghiệm của họ. Tổng quan năm 2026 trên Genome Research tiếp tục dùng các cấu trúc này cho dữ liệu genomic lớn.</p></div>
+</section>
+
+<section class="s video" data-act="6" data-title="Cây: LCA quy về RMQ (video)" data-time="67" data-opt>
+  <video src="media/M08_EulerTour.mp4" poster="media/posters/M08_EulerTour.jpg" preload="auto"></video>
+  <div class="notes"><p>Ứng dụng trên cây: tổ tiên chung của hai loài trong cây phân loại, phần tử cha chung trong hệ thống tài liệu phân cấp. Đây là ứng dụng gián tiếp vì LCA còn có cách khác như binary lifting.</p></div>
+</section>
+
+<section class="s" data-act="6" data-title="RMQ hai chiều" data-time="40" data-opt>
+  <div class="eyebrow"><b>Mở rộng</b></div>
+  <h2>RMQ hai chiều: rẻ nhất trong một hình chữ nhật</h2>
+  <div class="body">
+    <div data-w="grid2d" style="flex:none;width:880px"></div>
+    <div class="grow stack">
+      <div class="key"><div class="formula" style="font-size:30px">$$\min_{\substack{r_1\le i\le r_2\\ c_1\le j\le c_2}} M[i][j]$$</div></div>
+      <p class="lead">Hàng: khung giờ · cột: ngày bay</p>
+      <p class="lead rise" data-at="1">Quét mỗi lần truy vấn: tệ nhất $O(nm)$ ô</p>
+    </div>
+  </div>
+  <div class="say" data-step="0" data-mood="talk">Giờ mình chọn cả ngày lẫn giờ bay: bảng giá thành ma trận.</div>
+  <div class="say" data-step="1" data-mood="worried">Kéo chuột chọn một khung: khung càng to, càng nhiều ô phải đọc.</div>
+  <div class="notes"><p>Min theo từng cột của bảng chính là mảng A = [7, 4, 9, 4, 6, 2, 2, 8] ở đầu buổi: bài một chiều là bảng này nhìn từ trên xuống. Khung mặc định 9h–18h, 4/11–8/11 có 20 ô, rẻ nhất 2 trăm nghìn lúc 15h ngày 8/11.</p><p>Có thể kéo chuột trên bảng để chọn khung bất kỳ, hoặc bấm các nút thử nhanh. Cách đơn giản nhất ở giữa: một Sparse Table cho mỗi hàng, truy vấn bằng cách lấy min của từng hàng, tốn O(n).</p></div>
+</section>
+
+<section class="s" data-act="6" data-title="Xử lý ảnh: erosion" data-time="50" data-steps="2" data-opt>
+  <div class="eyebrow"><b>Thực tế</b></div>
+  <h2>Xử lý ảnh: erosion là RMQ hai chiều</h2>
+  <div class="body col">
+    <div data-w="erode" style="align-self:center">
+      <div class="er-f key" style="padding:10px 20px"><div class="formula" style="font-size:26px">$$\min_{\substack{x_1\le x\le x_2\\ y_1\le y\le y_2}} I[x,y]$$</div></div>
+      <p class="er-note small">Sparse Table 2D: mỗi truy vấn tra 4 hình vuông chồng lấn phủ kín cửa sổ, $O(1)$</p>
+    </div>
+  </div>
+  <div class="say" data-step="0" data-mood="neutral">Ảnh xám là một ma trận số. Rê chuột lên ảnh để xem từng ô.</div>
+  <div class="say" data-step="1" data-mood="talk">Mỗi điểm lấy min trong cửa sổ quanh nó: chấm sáng nhỏ biến mất.</div>
+  <div class="say" data-step="2" data-mood="happy">Cửa sổ lớn hơn: vùng sáng co lại.</div>
+  <div class="notes"><p>Ô bên phải phóng to cửa sổ quanh điểm đang xét, mỗi ô là một số độ sáng; khung vàng là cửa sổ, ô viền xanh là min. Min đó thành điểm viền xanh ở ảnh bên phải. Rê chuột trên ảnh gốc: ảnh bên phải chỉ tính tới điểm đang trỏ (theo thứ tự từng hàng), phần chưa tính hiện ảnh gốc mờ. Nút "Quét từng điểm" chạy hết ảnh trong 6 giây; sang bước 1 nút này tự chạy.</p><p>Sparse Table 2D lưu các hình chữ nhật có cạnh lũy thừa của 2: O(HW log H log W) ô; mỗi truy vấn tra 4 ô. Toàn bộ chạy thật trong trình duyệt.</p><p>Lưu ý: erosion có cửa sổ cố định là trường hợp đặc biệt; thuật toán chuyên dụng như sliding-window minimum (Gil &amp; Kimmel, IEEE TPAMI 2002) thường phù hợp hơn RMQ 2D tổng quát.</p></div>
+</section>
+
+<section class="s" data-act="6" data-title="Khi đề bài đổi một chút" data-time="40" data-opt>
+  <div class="eyebrow"><b>Mở rộng</b></div>
+  <h2>Đề bài đổi, công cụ đổi theo</h2>
+  <div class="body col">
+    <table class="t">
+      <tr><th>Trường hợp</th><th>Công cụ</th></tr>
+      <tr><td class="h">Mảng tĩnh</td><td class="c-sparse">Sparse Table</td></tr>
+      <tr><td class="h">Sửa một phần tử</td><td class="c-seg">Segment Tree</td></tr>
+      <tr><td class="h">Sửa cả đoạn</td><td class="c-seg">Lazy Segment Tree</td></tr>
+      <tr><td class="h">Cửa sổ trượt</td><td class="c-sqrt">Deque đơn điệu</td></tr>
+      <tr><td class="h">Phép tổng, phép không lũy đẳng</td><td>Disjoint Sparse Table</td></tr>
+      <tr><td class="h">Ma trận</td><td>Sparse Table 2D</td></tr>
+      <tr><td class="h">Bộ nhớ cực ít</td><td>Succinct RMQ</td></tr>
+    </table>
+  </div>
+  <div class="say" data-mood="talk">Một ý tưởng cốt lõi, nhiều biến thể.</div>
+  <div class="notes"><p>Ví dụ trên A = [7,4,9,4,6,2,2,8]: RMQ(1,6) = 5 từ hai khối [1,4] và [3,6]; A[5] := 10 thì RMQ(3,6) đổi từ 5 sang 6; cộng 3 vào [4,6] thì min A[2..7] thành 4; cửa sổ dài 3 cho 4, 4, 4, 2, 2, 2.</p><p>max, gcd, AND, OR vẫn dùng Sparse Table. Disjoint Sparse Table dùng các đoạn không giao nhau nên đúng với mọi phép kết hợp. Succinct dùng 2n + o(n) bit, chỉ trả vị trí; chỉ giới thiệu một câu.</p></div>
+</section>

@@ -1,0 +1,12 @@
+{
+  "date": "2026-10-31",
+  "cpu": "AMD EPYC 9V74 (virtualized host)",
+  "affinity_cpu": 0,
+  "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0",
+  "flags": "-O3 -DNDEBUG -std=c++17 -march=native -Wall -Wextra",
+  "system": "Linux-6.18.57-x86_64-with-glibc2.39",
+  "repetitions": 5,
+  "operations_per_case": 20000,
+  "input_values": "mt19937 fixed seeds, integers 1..1e9 via modulo",
+  "memory": "auxiliary numeric vector payload only, beyond shared A; excludes vector metadata, allocator, queries and peak RSS"
+}

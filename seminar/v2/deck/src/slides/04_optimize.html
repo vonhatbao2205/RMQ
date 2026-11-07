@@ -1,0 +1,202 @@
+<section class="s" data-act="4" data-title="Có thể bỏ log n không?" data-time="50">
+  <div class="eyebrow"><b>Tối ưu</b></div>
+  <h2>Có thể bỏ $\log n$ khỏi tiền xử lý không?</h2>
+  <div class="body">
+    <div class="grow stack">
+      <p class="lead">$n$ = 65.536 ⇒ Sparse Table cần <b class="c-sparse">1.114.112 ô</b></p>
+      <div class="rise" data-at="1" style="display:grid;grid-template-columns:260px 1fr 170px;gap:14px;align-items:center;margin-top:10px">
+        <span class="txt">Mảng gốc</span><div style="height:32px;background:var(--scan);border-radius:5px;width:100%"></div><span class="mono" style="font-size:27px">65.536</span>
+        <span class="txt">Đại diện khối</span><div style="height:32px;background:var(--fh);border-radius:5px;width:6.25%"></div><span class="mono" style="font-size:27px">4.096</span>
+      </div>
+      <div class="key rise" data-at="2" style="margin-top:10px"><div class="formula" style="font-size:34px">$$m\log_2 m = 4096\cdot 12 = 49152 < n$$</div></div>
+    </div>
+    <div style="width:560px;flex:none" class="stack rise" data-at="3">
+      <div class="key pi"><div class="formula" style="font-size:32px">$$m\log m\le\frac{n}{\log n}\cdot\log n=n$$</div></div>
+      <p class="lead">Chọn khối $b=\Theta(\log n)$</p>
+    </div>
+  </div>
+  <div class="say" data-step="0" data-mood="think">Bảng to vì mỗi vị trí xuất hiện ở khoảng $\log n$ tầng.</div>
+  <div class="say" data-step="1" data-mood="talk">Mỗi khối chỉ cử một đại diện vào bảng.</div>
+  <div class="say" data-step="2" data-mood="surprised">Số ô còn ít hơn cả độ dài mảng gốc!</div>
+  <div class="say" data-step="3" data-mood="happy">Tầng trên đã tuyến tính.</div>
+  <div class="notes"><p>Ví dụ dùng b = 16 = log₂ n cho dễ tính, nên m = 65.536 / 16 = 4.096. Bài toán thật chọn b = ¼ log₂ n, giải thích sau. Số phần tử giảm khoảng log n lần, vừa đủ bù cho khoảng log n tầng.</p><p>b = Θ(log n) nghĩa là b tăng cùng bậc với log n, chỉ khác hệ số hằng: tồn tại c₁, c₂ &gt; 0 sao cho c₁ log n ≤ b ≤ c₂ log n khi n đủ lớn. Kỹ thuật dùng lại thuật toán đã biết trên đầu vào nhỏ hơn gọi là bootstrapping.</p></div>
+</section>
+
+<section class="s video" data-act="4" data-title="Chia khối và ghép ba phần (video)" data-time="62">
+  <video src="media/M05_Blocks.mp4" poster="media/posters/M05_Blocks.jpg" preload="auto"></video>
+  <div class="notes"><p>RMQ(7,12): đuôi khối 1, khối 2 trọn vẹn, đầu khối 3. Lỗi hay gặp: lấy min cả khối biên, trong khi cực tiểu đó nằm ngoài đoạn truy vấn.</p></div>
+</section>
+
+<section class="s" data-act="4" data-title="Bên trong khối thì sao?" data-time="40">
+  <div class="eyebrow"><b>Tối ưu</b></div>
+  <h2>Còn truy vấn nằm trong một khối?</h2>
+  <div class="body col">
+    <table class="t">
+      <tr><th>Cách xử lý trong khối</th><th>Chi phí</th><th></th></tr>
+      <tr><td class="h">Quét khối mỗi lần truy vấn</td><td>$O(\log n)$ mỗi truy vấn</td><td class="bad">Chưa đạt $O(1)$</td></tr>
+      <tr class="rise" data-at="1"><td class="h">Bảng mọi đoạn cho từng khối</td><td>$O(n\log n)$</td><td class="bad">Như ban đầu</td></tr>
+      <tr class="rise" data-at="2"><td class="h">Sparse Table cho từng khối</td><td>$O(n\log\log n)$</td><td class="bad">Gần, chưa tới</td></tr>
+    </table>
+    <div class="key q rise" data-at="3" style="max-width:1100px"><p class="lead"><b>Nhiều khối có thể dùng chung một bảng đáp án không?</b></p></div>
+  </div>
+  <div class="say" data-step="0" data-mood="neutral">Quét thì đơn giản, nhưng chưa đạt mục tiêu.</div>
+  <div class="say" data-step="1" data-mood="worried">Bảng riêng cho từng khối: lại về $O(n\log n)$.</div>
+  <div class="say" data-step="2" data-mood="think">Sparse Table từng khối: rất gần, nhưng chưa tới.</div>
+  <div class="say" data-step="3" data-mood="surprised">Có 16.384 khối, nhưng chúng có thật sự khác nhau không?</div>
+  <div class="notes"><p>Chi phí: quét O(b) = O(log n); bảng mọi đoạn (n/b)·O(b²) = O(n log n); Sparse Table từng khối (n/b)·O(b log b) = O(n log log n). Với n = 65.536, b = 4: mỗi bảng nhỏ có 3 tầng thay vì 17, tổng 16.384 × 4 × 3 = 196.608 ô.</p><p>Điểm mấu chốt: tổng chi phí đang tính theo số khối. Muốn giảm tiếp phải làm chi phí phụ thuộc vào số LOẠI khối.</p></div>
+</section>
+
+<section class="s video" data-act="4" data-title="Cây Cartesian (video)" data-time="91">
+  <video src="media/M06_CartesianTree.mp4" poster="media/posters/M06_CartesianTree.jpg" preload="auto"></video>
+  <div class="notes"><p>Dựng cây theo định nghĩa đệ quy: lấy min làm gốc, hai bên làm tiếp. Hai tính chất: duyệt giữa cho thứ tự chỉ số; cha không lớn hơn con. Rồi minh họa LCA trên hai đoạn.</p></div>
+</section>
+
+<section class="s" data-act="4" data-title="Chứng minh RMQ = LCA" data-time="55">
+  <div class="eyebrow"><b>Tối ưu</b></div>
+  <h2>Vì sao LCA luôn là đáp án RMQ?</h2>
+  <div class="body">
+    <div data-w="carttree" style="flex:none;width:930px"></div>
+    <div class="grow stack">
+      <div class="key pi"><div class="formula" style="font-size:33px">$$\mathrm{RMQ}_A(l,r)=\mathrm{LCA}_T(l,r)$$</div></div>
+      <p class="txt rise" data-at="1"><b>1. LCA nằm trong đoạn.</b> Nếu nằm ngoài, hai đầu cùng rơi vào một nhánh con, nên có tổ tiên chung sâu hơn.</p>
+      <p class="txt rise" data-at="2"><b>2. LCA nhỏ nhất.</b> Cây con của nó chứa cả đoạn, và gốc là min của đoạn đó.</p>
+      <p class="lead rise" data-at="3">⇒ Hình dạng cây đủ để biết <b>vị trí</b> min.</p>
+    </div>
+  </div>
+  <div class="say" data-step="0" data-mood="talk">Gõ $l$, $r$: thanh tím luôn chứa trọn đoạn truy vấn.</div>
+  <div class="say" data-step="1" data-mood="think">LCA không thể nằm ngoài đoạn.</div>
+  <div class="say" data-step="2" data-mood="think">Gốc cây con là phần tử nhỏ nhất của đoạn nó đại diện.</div>
+  <div class="say" data-step="3" data-mood="surprised">Đáp án chỉ phụ thuộc hình dạng cây. Đây là chìa khóa.</div>
+  <div class="notes"><p>Bước 1: gọi m = LCA(l, r). Nếu m &lt; l thì l, r đều ở cây con phải của m, nên con phải đó là tổ tiên chung sâu hơn, mâu thuẫn. m &gt; r tương tự. Vậy l ≤ m ≤ r.</p><p>Bước 2: mỗi cây con ứng với một đoạn chỉ số liên tiếp. Cây con gốc m chứa l và r nên chứa cả [l, r], mà gốc là cực tiểu của đoạn nó đại diện. Vậy A[m] ≤ A[k] với mọi k trong [l, r].</p><p>Giá trị trùng nhau: giữ quy tắc chọn trái khi dựng cây. Phép ghép các khối vẫn cần giá trị để so sánh.</p></div>
+</section>
+
+<section class="s video" data-act="4" data-title="Khác giá trị, cùng đáp án (video)" data-time="46">
+  <video src="media/M07_SameShape.mp4" poster="media/posters/M07_SameShape.jpg" preload="auto"></video>
+  <div class="notes"><p>Định lý: hai mảng cùng độ dài có đáp án RMQ giống nhau trên mọi đoạn khi và chỉ khi chúng có cùng hình dạng cây Cartesian chuẩn. Ví dụ nhỏ: [2,1,3] và [3,1,2].</p></div>
+</section>
+
+<section class="s" data-act="4" data-title="Đếm số loại khối: Catalan" data-time="55">
+  <div class="eyebrow"><b>Tối ưu</b></div>
+  <h2>Khối 4 phần tử chỉ có 14 kiểu</h2>
+  <div class="body">
+    <div data-w="catalan" style="flex:none;width:1130px"></div>
+    <div class="grow stack">
+      <table class="t" style="font-size:28px">
+        <tr><th>$b$</th><th class="num">$C_b$</th><th class="num">$4^b$</th></tr>
+        <tr><td>3</td><td class="num">5</td><td class="num">64</td></tr>
+        <tr class="pick"><td>4</td><td class="num">14</td><td class="num">256</td></tr>
+        <tr><td>5</td><td class="num">42</td><td class="num">1.024</td></tr>
+      </table>
+      <div class="key rise" data-at="3"><div class="formula" style="font-size:30px">$$C_b<4^b$$</div></div>
+    </div>
+  </div>
+  <div class="say" data-step="0" data-mood="surprised">Giá trị có vô số khả năng, nhưng về RMQ chỉ có 14 kiểu.</div>
+  <div class="say" data-step="1" data-mood="happy">Ba khối ban nãy rơi vào cùng một ô.</div>
+  <div class="say" data-step="2" data-mood="talk">Khác hình dạng thì khác ô, khác đáp án.</div>
+  <div class="say" data-step="3" data-mood="think">Chỉ cần biết: số loại không quá $4^b$.</div>
+  <div class="notes"><p>Số hình dạng cây nhị phân b nút là số Catalan C_b = (1/(b+1))·C(2b, b). Mã 11 10 00 00: duyệt preorder, mỗi nút 2 bit (có con trái? có con phải?): gốc có hai con, con trái có một con trái, hai nút còn lại là lá.</p><p>Mỗi cây có mã 2b bit nên tối đa 2^(2b) = 4^b mã. Không phải mã nào cũng hợp lệ, nên đây là chặn trên.</p></div>
+</section>
+
+<section class="s" data-act="4" data-title="Bảng đáp án dùng chung" data-time="45">
+  <div class="eyebrow"><b>Tối ưu</b></div>
+  <h2>Mỗi loại một bảng, mọi khối cùng loại dùng chung</h2>
+  <div class="body col">
+    <div data-w="shared"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:1300px">
+      <div class="key"><p class="small">Mỗi khối một bảng</p><p class="lead bad">163.840 ô</p></div>
+      <div class="key a"><p class="small">Dùng chung theo loại</p><p class="lead a">140 ô</p></div>
+    </div>
+  </div>
+  <div class="say" data-mood="happy">Bấm một ô: cả ba khối có đáp án ở cùng vị trí tương đối.</div>
+  <div class="notes"><p>T[type][u][v] là vị trí tương đối; đổi về chỉ số gốc bằng s + p với s = t·b. Mỗi khối chỉ lưu mã loại.</p><p>Một bảng cho khối dài 4 có 4 + 3 + 2 + 1 = 10 ô. 16.384 khối mỗi khối một bảng: 163.840 ô. Dùng chung, tối đa 14 loại: 140 ô (chặn trên đơn giản 4^b = 256 loại, tức 2.560 ô).</p></div>
+</section>
+
+<section class="s" data-act="4" data-title="Vì sao chọn b = ¼ log₂ n" data-time="50">
+  <div class="eyebrow"><b>Tối ưu</b></div>
+  <h2>Vì sao chọn $b=\tfrac14\log_2 n$?</h2>
+  <div class="body col">
+    <div data-w="quarter"></div>
+    <div class="key pi rise" data-at="1" style="max-width:1300px"><div class="formula" style="font-size:33px">$$P(n)=O\Big(n+\tfrac nb\log\tfrac nb+4^b b^3\Big)=O(n),\qquad Q(n)=O(1)$$</div></div>
+  </div>
+  <div class="say" data-step="0" data-mood="think">Kéo hệ số: nó nằm trong số mũ của $4^b$, nên đổi cả bậc tăng trưởng.</div>
+  <div class="say" data-step="1" data-mood="happy">Với $\tfrac14$, cả ba khoản đều tuyến tính. Xong: xây $O(n)$, truy vấn $O(1)$.</div>
+  <div class="notes"><p>Ba khoản: tính mã và min các khối O(n); Sparse Table trên đại diện O((n/b) log(n/b)) = O(n); bảng tra 4^b·b³. Với b = ¼ log₂ n thì 4^b = √n loại, bảng tra O(√n log³ n) = o(n).</p><p>Mọi 0 &lt; c &lt; 1/2 đều cho bảng tra o(n); c = 1/4 là lựa chọn của Fischer–Heun. Truy vấn: hai lần tra bảng, một truy vấn Sparse Table, ghép ba ứng viên. Bộ nhớ O(n) word; mã loại dài 2b = O(log n) bit vừa một word. Dùng b³ là chặn đơn giản; xây bảng bằng DP thì b², paper dùng Catalan cho chặn chặt hơn.</p></div>
+</section>
+
+<section class="s" data-act="4" data-title="Bước xây để lại gì" data-time="40" data-opt>
+  <div class="eyebrow"><b>Tối ưu</b></div>
+  <h2>Truy vấn dùng gì từ bước xây?</h2>
+  <div class="body col" style="gap:24px">
+    <div data-w="fhin"></div>
+    <table class="t tight" style="font-size:28px">
+      <tr><th style="width:400px">Bước xây để lại</th><th style="width:660px">Là gì</th><th>Dùng để</th></tr>
+      <tr><td class="h c-sqrt mono">V = [2, 1, 3, 0]</td><td>min của mỗi khối</td><td>xây <b>macro</b>: Sparse Table trên $V$</td></tr>
+      <tr><td class="h c-sqrt mono">G = [0, 6, 10, 14]</td><td>vị trí của min đó trong $A$</td><td>đổi khối $t$ thành vị trí $G[t]$</td></tr>
+      <tr><td class="h c-fh mono">T[type][u][v]</td><td>vị trí min của $[u, v]$ trong khối loại $type$</td><td>tra đoạn trong khối $k$ qua mã loại $type_k$</td></tr>
+    </table>
+    <table class="t tight rise" data-at="1" style="font-size:28px">
+      <tr><th style="width:400px">Hàm truy vấn gọi</th><th style="width:660px">Nhận</th><th>Trả về</th></tr>
+      <tr><td class="h c-fh mono">inBlock(k, u, v)</td><td>khối $k$, đoạn $[u, v]$ đánh số trong khối</td><td>vị trí trong $A$: $k\cdot b+T[type_k][u][v]$</td></tr>
+      <tr><td class="h c-sqrt mono">macro.rmq(i, j)</td><td>các khối từ $i$ đến $j$</td><td>khối $t$ có $V[t]$ nhỏ nhất</td></tr>
+      <tr><td class="h mono">better(p, q)</td><td>hai vị trí</td><td>vị trí có giá trị nhỏ hơn, bằng nhau chọn trái</td></tr>
+    </table>
+  </div>
+  <div class="say" data-step="0" data-mood="talk">Bước xây để lại ba thứ: $V$, $G$ cho phần giữa, $T$ cho hai đầu.</div>
+  <div class="say" data-step="1" data-mood="talk">Truy vấn chỉ gọi ba hàm này, hàm nào cũng $O(1)$.</div>
+  <div class="notes"><p>Ô tím là min của từng khối: giá trị đưa vào V, chỉ số đưa vào G. macro chỉ trả về số thứ tự khối, nên cần G để ra vị trí thật. V có n/b phần tử nên Sparse Table trên V tốn O((n/b) log(n/b)) = O(n).</p><p>u, v trong inBlock là vị trí tương đối, từ 0 đến b − 1; T cũng lưu vị trí tương đối nên cộng k·b để ra vị trí trong A. Mỗi khối chỉ lưu mã loại type_k, tính một lần lúc xây. better so A[p] với A[q].</p></div>
+</section>
+
+<section class="s" data-act="4" data-title="Toàn bộ một truy vấn" data-time="50" data-steps="5" data-opt>
+  <div class="eyebrow"><b>Tối ưu</b></div>
+  <h2>Chạy tay một truy vấn Fischer–Heun</h2>
+  <div class="body col"><div data-w="fhq"></div></div>
+  <div class="say" data-step="0" data-mood="talk">Áp vào $\mathrm{RMQ}(7, 12)$ với $V$, $G$, $T$ vừa có.</div>
+  <div class="say" data-step="1" data-mood="talk">Tìm hai khối chứa hai đầu đoạn.</div>
+  <div class="say" data-step="2" data-mood="neutral">Đuôi khối trái: tra bảng dùng chung.</div>
+  <div class="say" data-step="3" data-mood="neutral">Đầu khối phải: cũng vậy.</div>
+  <div class="say" data-step="4" data-mood="neutral">Phần giữa: Sparse Table trên đại diện.</div>
+  <div class="say" data-step="5" data-mood="happy">Ba ứng viên, một đáp án.</div>
+  <div class="notes"><p>Hai trường hợp đặc biệt: cùng khối thì tra một lần; hai khối kề nhau thì không có phần giữa. Khi cài đặt, khối cuối có thể thiếu phần tử: đệm bằng giá trị lớn hơn mọi giá trị thật. Quy tắc chọn trái phải nhất quán ở cây, bảng nội khối và bước ghép.</p></div>
+</section>
+
+<section class="s" data-act="4" data-title="Con đường thứ hai: Euler + ±1" data-time="50" data-opt>
+  <div class="eyebrow"><b>Tối ưu</b></div>
+  <h2>Hướng khác: Euler tour và ±1 RMQ</h2>
+  <div class="body col">
+    <div class="rowx" style="gap:14px;flex-wrap:nowrap;justify-content:center">
+      <div class="key" style="padding:12px 18px"><span class="txt">Mảng</span></div><span class="small">→</span>
+      <div class="key" style="padding:12px 18px"><span class="txt">Cây Cartesian</span></div><span class="small">→</span>
+      <div class="key" style="padding:12px 18px"><span class="txt">LCA</span></div><span class="small">→</span>
+      <div class="key" style="padding:12px 18px"><span class="txt">Euler tour</span></div><span class="small">→</span>
+      <div class="key a" style="padding:12px 18px"><span class="txt">±1 RMQ</span></div>
+    </div>
+    <table class="t rise" data-at="1" style="width:auto;margin:0 auto">
+      <tr><th></th><th>Euler + ±1</th><th>Fischer–Heun trực tiếp</th></tr>
+      <tr><td>Mảng xử lý</td><td>$2n-1$</td><td>$n$</td></tr>
+      <tr><td>Mã loại khối</td><td>tăng/giảm, $b-1$ bit</td><td>hình dạng cây, $2b$ bit</td></tr>
+      <tr><td>Bộ nhớ phụ</td><td class="bad">$\approx 9n$ word</td><td class="a">$\approx 4n$ word</td></tr>
+    </table>
+  </div>
+  <div class="say" data-step="0" data-mood="talk">Mảng độ sâu Euler có hai số kề nhau luôn chênh đúng 1.</div>
+  <div class="say" data-step="1" data-mood="happy">Cùng $O(n)$ và $O(1)$, nhưng hằng số khác nhau. Chạy thật thì sao?</div>
+  <div class="notes"><p>Bender &amp; Farach-Colton (2000). Đi qua một cạnh thì độ sâu đổi đúng ±1. Trừ phần tử đầu khỏi khối: [7,8,7,6] − 7 = [0,1,0,−1] và [12,13,12,11] − 12 = [0,1,0,−1], cùng loại. Chỉ cần mã b − 1 bit, có 2^(b−1) loại, chọn b ≈ ½ log₂ N. Không áp dụng trực tiếp cho mảng thường: [1,4,2] và [2,4,1] cùng "tăng rồi giảm" nhưng khác đáp án.</p><p>Bộ nhớ theo Bảng 1 của Fischer &amp; Heun (2006): 9n + O(√n log² n) so với 4n + O(√n log n) word. Không có lập luận vòng: ±1 RMQ được giải trực tiếp trước, dùng nó giải LCA, rồi dùng LCA giải RMQ tổng quát. Paper năm 2000 là bản trình bày lại đơn giản.</p></div>
+</section>
+
+<section class="s" data-act="4" data-title="Lịch sử các mốc chính" data-time="25" data-opt>
+  <div class="eyebrow"><b>Tối ưu</b></div>
+  <h2>Các mốc chính</h2>
+  <div class="body col">
+    <table class="t">
+      <tr><th>Năm</th><th>Tác giả</th><th>Đóng góp</th></tr>
+      <tr><td class="mono">1980</td><td class="h">Vuillemin</td><td>Cây Cartesian</td></tr>
+      <tr><td class="mono">1984</td><td class="h">Gabow, Bentley, Tarjan · Harel, Tarjan</td><td>Xây $O(n)$, truy vấn $O(1)$ lần đầu tiên</td></tr>
+      <tr><td class="mono">1993</td><td class="h">Berkman, Vishkin</td><td>Euler tour và ±1 RMQ</td></tr>
+      <tr><td class="mono">2000</td><td class="h">Bender, Farach-Colton</td><td>Bản trình bày đơn giản</td></tr>
+      <tr class="pick"><td class="mono">2006</td><td class="h">Fischer, Heun</td><td>RMQ trực tiếp, kèm thực nghiệm</td></tr>
+      <tr><td class="mono">2011</td><td class="h">Fischer, Heun</td><td>Chỉ $2n+o(n)$ bit</td></tr>
+      <tr><td class="mono">2017</td><td class="h">Baumstark et al.</td><td>Nhanh hơn tới 3 lần trong thực nghiệm</td></tr>
+    </table>
+  </div>
+  <div class="say" data-mood="neutral">Kết quả tối ưu có từ 1984. Phần còn lại là làm nó đơn giản và nhanh thật sự.</div>
+  <div class="notes"><p>Câu hỏi hay gặp: ai đạt kết quả đầu tiên? Gabow–Bentley–Tarjan 1984 (quy RMQ về LCA của Harel–Tarjan), không phải Bender–Farach-Colton 2000. Cấu trúc 2011 không cần giữ mảng gốc để trả về vị trí.</p></div>
+</section>
